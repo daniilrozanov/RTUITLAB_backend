@@ -1,0 +1,7 @@
+port: "8081"
+
+users_service:
+  host: "localhost"
+  port: "8080"
+  urn: "confirm"
+  scheme: "http://"
