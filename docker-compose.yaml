@@ -1,0 +1,69 @@
+version: '3'
+
+services:
+  purchases:
+    build: ./purchases
+    command: ./main
+    environment:
+      - DB_PASSWORD=1
+      - JWT_SECRET_KEY=H+0MpgoFbwAcmXISyCS9vr0x(WAkc@
+      - PASS_GEN_SALT=NZIl!#Qv$an(4akm*wP9=jo&2!55UR)
+      - USERS_TRANSPORT_KEY=Zr8(#K95vi8kdUlniC7VaWSsYxUFNhBy
+    ports:
+    - 8080:8080
+    depends_on: 
+    - db-purchases
+    networks:
+    - l1
+    - n1
+
+  db-purchases:
+    image: postgres
+    volumes: 
+    - db-data-purchases:/var/lib/postgresql/data
+    - ./db-purchases/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment: 
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1
+      POSTGRES_DATABASE: postgres
+    networks:
+    - l1
+
+  shops:
+    build: ./shops
+    command: ./main
+    environment:
+      - USERS_TRANSPORT_KEY=Zr8(#K95vi8kdUlniC7VaWSsYxUFNhBy
+      - JWT_SECRET_KEY=)0OHGFz1Mo9a@rs)%IYNxV3kBf3txnWm
+      - DB_PASSWORD=1
+    ports: 
+    - 8081:8080
+    depends_on:
+    - db-shops
+    networks:
+    - l2
+    - n1
+
+  db-shops:
+    image: postgres
+    volumes: 
+    - db-data-shops:/var/lib/postgresql/data
+    - ./shops/schema/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment: 
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1
+      POSTGRES_DATABASE: postgres
+    networks:
+    - l2
+
+networks: 
+  l2:
+    driver: bridge
+  l1:
+    driver: bridge
+  n1:
+    driver: bridge
+
+volumes:
+  db-data-purchases:
+  db-data-shops:

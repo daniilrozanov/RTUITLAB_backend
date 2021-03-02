@@ -15,15 +15,17 @@ func InitNewHandler(serv *service.Service) *Handler {
 
 func (h *Handler) InitRoutes () *gin.Engine{
 	router := gin.New()
-	//router.POST("/", h.SignIn)
 	router.POST("/signin", h.SignIn)
-	router.GET("/shop", h.GetShops)
-	router.GET("/shop/:id", h.GetShop)
+	router.GET("/shops", h.GetShops)
+	router.GET("/products", h.GetProducts)
+	router.POST("/receive", h.CreateProduct)
 	api := router.Group("", h.IdentifyUser)
 	{
 		api.POST("/products", h.AddToCart)
-		api.GET("/cart", h.GetCart)
-		api.POST("/cart", h.CreateReceip)
+		api.POST("/shop/:id", h.AddToCart)
+		api.GET("/carts", h.GetCart)
+		api.POST("/carts", h.CreateReceipt)
+		api.GET("/receips", h.GetReceipts)
 	}
 	return router
 }

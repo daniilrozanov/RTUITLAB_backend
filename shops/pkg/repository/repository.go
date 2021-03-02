@@ -1,24 +1,30 @@
 package repository
 
-type Authorization interface {
-	ConfirmUser(name, password string) error
-}
+import (
+	"github.com/jmoiron/sqlx"
+	"shops/pkg"
+)
 
 type Products interface {
-	GetProductsByShop()
-	GetProductsByCategory()
-	GetProductsById()
-	CreateProduct()
-	UpdateProduct()
+	GetAllShops() ([]pkg.Shop, error)
+	GetAllProducts() ([]pkg.Product, error)
+	ReceiveProduct(pkg.Product, []pkg.ShopsProducts) (int, error)
 }
 
 type Receipts interface {
 	CreateReceipt()
 	DeleteReceipt()
+	GetReceips()
 }
 
 type Repository struct {
-	Authorization
 	Products
 	Receipts
 }
+
+func NewRepository(db *sqlx.DB) *Repository {
+	return &Repository{
+		Products: &ProductPostgres{db: db},
+	}
+}
+

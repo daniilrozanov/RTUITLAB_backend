@@ -3,14 +3,21 @@ package main
 import (
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
+	"time"
+
+	//_ "github.com/jackc/pgx/v4"
+	_ "github.com/lib/pq"
 	"log"
+	"os"
 	"shops/pkg"
 	"shops/pkg/handler"
-	_ "shops/pkg/repository"
+	"shops/pkg/repository"
 	"shops/pkg/service"
 )
 
 func main(){
+	time.Sleep(2 * time.Second)
+
 	if err := initConfigs(); err != nil {
 		log.Fatalf("Error occured while reading of config: %s", err)
 	}
@@ -18,7 +25,7 @@ func main(){
 		log.Fatalf("Error occured while reading env variables: %s", err)
 	}
 
-	/*db, err := repository.InitPostgresDB(repository.PostgresConfig{
+	db, err := repository.InitPostgresDB(&repository.PostgresConfig{
 		Host:     viper.GetString("db_pg.host"),
 		Port:     viper.GetString("db_pg.port"),
 		Username: viper.GetString("db_pg.username"),
@@ -29,17 +36,16 @@ func main(){
 	if err != nil {
 		log.Fatalf("Error occured while connecting with database: %s", err)
 	}
-	*/
 
-	auth := service.NewAuthService(&service.UserServiceConfig{
+	uConfs := &service.UserServiceConfig{
 		Host: viper.GetString("users_service.host"),
 		Port: viper.GetString("users_service.port"),
 		URN: viper.GetString("users_service.urn"),
 		Scheme: viper.GetString("users_service.scheme"),
-	})
+	}
 
-	//repo := repository.InitRepositoryLayer(db)
-	service := service.InitNewService(auth)
+	repo := repository.NewRepository(db)
+	service := service.InitNewService(uConfs, repo)
 	handl := handler.InitNewHandler(service)
 	serv := new(pkg.Server)
 

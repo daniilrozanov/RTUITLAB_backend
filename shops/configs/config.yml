@@ -1,7 +1,15 @@
-port: "8081"
+port: "8080"
 
 users_service:
-  host: "localhost"
+  host: "purchases"
   port: "8080"
   urn: "confirm"
   scheme: "http://"
+
+db_pg:
+  host: "db-shops"
+  port: "5432"
+  username: "postgres"
+  password: "1"
+  dbname: "postgres"
+  sslmode: "disable"

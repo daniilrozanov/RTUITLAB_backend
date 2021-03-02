@@ -27,7 +27,7 @@ func (h *Handler) SignIn(c *gin.Context){
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, map[string]interface{}{
+	c.JSON(http.StatusOK, map[string]string{
 		"token": token,
 	})
 }

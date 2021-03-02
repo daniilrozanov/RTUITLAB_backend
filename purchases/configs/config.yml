@@ -1,8 +1,8 @@
 port: "8080"
 
 db_pg:
-  host: "localhost"
-  port: "5433"
+  host: "db-purchases"
+  port: "5432"
   username: "postgres"
   password: "1"
   dbname: "postgres"

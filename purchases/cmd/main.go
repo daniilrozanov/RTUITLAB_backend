@@ -10,9 +10,12 @@ import (
 	"purchases/pkg/buisness"
 	"purchases/pkg/handlers"
 	"purchases/pkg/repository"
+	"time"
 )
 
 func main() {
+	time.Sleep(2 * time.Second)
+
 	if err := initConfigs(); err != nil {
 		log.Fatalf("Error occured while reading of config: %s", err)
 	}
