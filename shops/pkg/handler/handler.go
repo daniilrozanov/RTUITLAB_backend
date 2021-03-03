@@ -22,9 +22,8 @@ func (h *Handler) InitRoutes () *gin.Engine{
 	api := router.Group("", h.IdentifyUser)
 	{
 		api.POST("/products", h.AddToCart)
-		api.POST("/shop/:id", h.AddToCart)
-		api.GET("/carts", h.GetCart)
-		api.POST("/carts", h.CreateReceipt)
+		api.GET("/carts", h.GetCarts)
+		api.DELETE("/carts", h.DeleteFromCart)
 		api.GET("/receips", h.GetReceipts)
 	}
 	return router

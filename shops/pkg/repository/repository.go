@@ -12,9 +12,10 @@ type Products interface {
 }
 
 type Receipts interface {
-	CreateReceipt()
-	DeleteReceipt()
-	GetReceips()
+	AddToCart(int, *pkg.CartItem) error
+	GetCarts(int) ([]pkg.CartJSON, error)
+	DeleteFromCart(item *pkg.CartItemsOnDeleteJSON, userID int) error
+	//CreateReceipt(int) error
 }
 
 type Repository struct {
@@ -25,6 +26,7 @@ type Repository struct {
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Products: &ProductPostgres{db: db},
+		Receipts: &ReceiptsService{db: db},
 	}
 }
 

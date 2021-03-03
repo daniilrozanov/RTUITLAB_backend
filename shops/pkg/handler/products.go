@@ -60,12 +60,4 @@ func (h *Handler) GetShops(c *gin.Context){
 	})
 }
 
-func (h *Handler) GetCart(c *gin.Context){
-
-}
-
-func (h *Handler) AddToCart(c *gin.Context){
-
-}
-
 

@@ -19,9 +19,10 @@ type Products interface {
 }
 
 type Receipts interface {
-	CreateReceipt()
-	DeleteReceipt()
-	GetReceips()
+	AddToCart(userId int, cartItem *pkg.CartItem) error
+	GetCarts(int) ([]pkg.CartJSON, error)
+	DeleteFromCart(item *pkg.CartItemsOnDeleteJSON, userID int) error
+	//CreateReceipt(int) error
 }
 
 type Service struct {
@@ -34,6 +35,7 @@ func InitNewService(uConfs *UserServiceConfig, repo *repository.Repository) *Ser
 	return &Service{
 		Authorization: NewAuthService(uConfs, repo),
 		Products: NewProductService(repo),
+		Receipts: NewReceiptsService(repo),
 	}
 }
 

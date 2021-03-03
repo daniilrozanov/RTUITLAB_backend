@@ -42,5 +42,6 @@ CREATE TABLE IF NOT EXISTS user_carts (
     id SERIAL PRIMARY KEY,
     user_id INTEGER ,
     shop_id INTEGER ,
-    carts_number INTEGER
+    carts_number INTEGER,
+    UNIQUE (user_id, shop_id)
 );
