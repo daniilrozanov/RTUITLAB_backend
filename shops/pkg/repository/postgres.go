@@ -21,6 +21,7 @@ const (
 	shopsProductsTable = "shops_products"
 	cartItemTable = "cart_item"
 	userCartsTable = "user_carts"
+	reseiptsSynchroTable = "receipts_synchro"
 )
 
 func InitPostgresDB(cfg *PostgresConfig) (*sqlx.DB, error) {

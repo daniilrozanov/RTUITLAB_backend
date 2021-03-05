@@ -15,27 +15,26 @@ import (
 
 var (
 	UsersTransportKey = os.Getenv("USERS_TRANSPORT_KEY")
-	jwtSecretKey = os.Getenv("JWT_SECRET_KEY")
+	jwtSecretKey      = os.Getenv("JWT_SECRET_KEY")
 )
 
 type UserServiceConfig struct {
-	Host string
-	Port string
-	URN string
-	Scheme string
+	Host       string
+	Port       string
+	ConfirmURN string
+	SynchroURN string
+	Scheme     string
 }
 
 type AuthService struct {
 	uConfs *UserServiceConfig
-	repo *repository.Repository
+	repo   *repository.Repository
 }
-
-
 
 func NewAuthService(uConfs *UserServiceConfig, repo *repository.Repository) *AuthService {
 	return &AuthService{
 		uConfs: uConfs,
-		repo: repo,
+		repo:   repo,
 	}
 }
 
@@ -48,7 +47,7 @@ func (a *AuthService) ConfirmUser(name, password string) (int, error) {
 	cryptedName, _ := encrypt([]byte(name), UsersTransportKey)
 	cryptedPass, _ := encrypt([]byte(password), UsersTransportKey)
 	byteJSON, err := json.Marshal(map[string][]byte{
-		"name": cryptedName,
+		"name":     cryptedName,
 		"password": cryptedPass,
 	})
 	if err != nil {
@@ -84,18 +83,18 @@ func (a *AuthService) ConfirmUser(name, password string) (int, error) {
 
 func (a *AuthService) getUserServiceURI() string {
 	if a.uConfs.Port == ":" {
-		return a.uConfs.Scheme + a.uConfs.Host + "/" + a.uConfs.URN
+		return a.uConfs.Scheme + a.uConfs.Host + "/" + a.uConfs.ConfirmURN
 	}
-	return a.uConfs.Scheme +  a.uConfs.Host + ":" + a.uConfs.Port + "/" + a.uConfs.URN
+	return a.uConfs.Scheme + a.uConfs.Host + ":" + a.uConfs.Port + "/" + a.uConfs.ConfirmURN
 }
 
 func (a *AuthService) GenerateToken(id int) (string, error) {
 	claims := CustomJWTClaims{
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
-			IssuedAt: time.Now().Unix(),
+			IssuedAt:  time.Now().Unix(),
 		},
-		UserId:         id,
+		UserId: id,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(jwtSecretKey))

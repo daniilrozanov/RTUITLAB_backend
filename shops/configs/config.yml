@@ -3,7 +3,8 @@ port: "8080"
 users_service:
   host: "purchases"
   port: "8080"
-  urn: "confirm"
+  confirm_urn: "confirm"
+  synchro_urn: ""
   scheme: "http://"
 
 db_pg:

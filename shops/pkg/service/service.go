@@ -22,21 +22,21 @@ type Receipts interface {
 	AddToCart(userId int, cartItem *pkg.CartItem) error
 	GetCarts(int) ([]pkg.CartJSON, error)
 	DeleteFromCart(item *pkg.CartItemsOnDeleteJSON, userID int) error
-	//CreateReceipt(int) error
+	CreateReceipt(shopId, userId int) (int, error)
+	TrySynchroByUserId(userId int) error
 }
 
 type Service struct {
 	Authorization
 	Products
 	Receipts
+	uConfs *UserServiceConfig
 }
 
 func InitNewService(uConfs *UserServiceConfig, repo *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(uConfs, repo),
-		Products: NewProductService(repo),
-		Receipts: NewReceiptsService(repo),
+		Products:      NewProductService(repo),
+		Receipts:      NewReceiptsService(repo),
 	}
 }
-
-

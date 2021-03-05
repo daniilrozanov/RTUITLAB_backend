@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"shops/pkg/service"
 	"github.com/gin-gonic/gin"
+	"shops/pkg/service"
 )
 
 type Handler struct {
@@ -13,7 +13,7 @@ func InitNewHandler(serv *service.Service) *Handler {
 	return &Handler{serv: serv}
 }
 
-func (h *Handler) InitRoutes () *gin.Engine{
+func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 	router.POST("/signin", h.SignIn)
 	router.GET("/shops", h.GetShops)
@@ -24,10 +24,8 @@ func (h *Handler) InitRoutes () *gin.Engine{
 		api.POST("/products", h.AddToCart)
 		api.GET("/carts", h.GetCarts)
 		api.DELETE("/carts", h.DeleteFromCart)
+		api.POST("/carts", h.CreateReceipt)
 		api.GET("/receips", h.GetReceipts)
 	}
 	return router
 }
-
-
-

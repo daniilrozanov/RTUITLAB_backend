@@ -40,7 +40,8 @@ func main(){
 	uConfs := &service.UserServiceConfig{
 		Host: viper.GetString("users_service.host"),
 		Port: viper.GetString("users_service.port"),
-		URN: viper.GetString("users_service.urn"),
+		ConfirmURN: viper.GetString("users_service.confirm_urn"),
+		SynchroURN: viper.GetString("users_service.confirm_urn"),
 		Scheme: viper.GetString("users_service.scheme"),
 	}
 

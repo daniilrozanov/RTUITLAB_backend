@@ -8,7 +8,7 @@ import (
 )
 
 type CreateProductData struct {
-	Prod pkg.Product `json:"product" binding:"required"`
+	Prod       pkg.Product         `json:"product" binding:"required"`
 	ShopsCount []pkg.ShopsProducts `json:"map" binding:"required"`
 }
 
@@ -20,7 +20,7 @@ type getAllShopsResponse struct {
 	Data []pkg.Shop `json:"data"`
 }
 
-func (h *Handler) CreateProduct(c *gin.Context){
+func (h *Handler) CreateProduct(c *gin.Context) {
 	var data CreateProductData
 
 	if err := c.BindJSON(&data); err != nil {
@@ -38,7 +38,7 @@ func (h *Handler) CreateProduct(c *gin.Context){
 	})
 }
 
-func (h *Handler) GetProducts(c *gin.Context){
+func (h *Handler) GetProducts(c *gin.Context) {
 	prods, err := h.serv.GetAllProducts()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -49,7 +49,7 @@ func (h *Handler) GetProducts(c *gin.Context){
 	})
 }
 
-func (h *Handler) GetShops(c *gin.Context){
+func (h *Handler) GetShops(c *gin.Context) {
 	shops, err := h.serv.GetAllShops()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -59,5 +59,3 @@ func (h *Handler) GetShops(c *gin.Context){
 		Data: shops,
 	})
 }
-
-

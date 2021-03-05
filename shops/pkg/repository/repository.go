@@ -15,7 +15,9 @@ type Receipts interface {
 	AddToCart(int, *pkg.CartItem) error
 	GetCarts(int) ([]pkg.CartJSON, error)
 	DeleteFromCart(item *pkg.CartItemsOnDeleteJSON, userID int) error
-	//CreateReceipt(int) error
+	CreateReceipt(shopId, userId int) (int, error)
+	SetReceiptsSynchro(recIds []int) error
+	GetUnsynchronizedReceiptsIds(userId int) ([]int, error)
 }
 
 type Repository struct {
@@ -29,4 +31,3 @@ func NewRepository(db *sqlx.DB) *Repository {
 		Receipts: &ReceiptsService{db: db},
 	}
 }
-

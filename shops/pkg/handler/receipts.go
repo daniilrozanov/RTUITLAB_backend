@@ -6,7 +6,7 @@ import (
 	"shops/pkg"
 )
 
-func (h *Handler) AddToCart(c *gin.Context){
+func (h *Handler) AddToCart(c *gin.Context) {
 	var cartItem pkg.CartItem
 
 	if err := c.BindJSON(&cartItem); err != nil {
@@ -65,6 +65,26 @@ func (h *Handler) DeleteFromCart(c *gin.Context) {
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"status": "success",
 	})
+}
+
+func (h *Handler) CreateReceipt(c *gin.Context) {
+	var rec struct {
+		ShopId int `json:"shop_id"`
+	}
+	userId, err := h.getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	if _, err := h.serv.CreateReceipt(rec.ShopId, userId); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	if err := h.serv.TrySynchroByUserId(userId); err != nil {
+		newErrorResponse(c, http.StatusCreated, err.Error())
+		return
+	}
 }
 
 func (h *Handler) GetReceipts(c *gin.Context) {
