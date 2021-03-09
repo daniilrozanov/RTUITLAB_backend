@@ -8,11 +8,12 @@ type ShopQuantityJSON struct {
 }
 
 type ProductJSON struct {
-	ID       int    `json:"id"`
-	Title    string `json:"title"`
-	Cost     int    `json:"cost"`
-	Quantity int    `json:"quantity"`
-	Category string `json:"category"`
+	ID         int    `json:"id"`
+	Title      string `json:"title"`
+	Cost       int    `json:"cost"`
+	Quantity   int    `json:"quantity"`
+	EntireCost int    `json:"entire_cost"`
+	Category   string `json:"category"`
 }
 
 type CartJSON struct {
@@ -30,11 +31,11 @@ type CartItemsOnDeleteJSON struct {
 
 type ReceiptJSON struct {
 	CartJSON
+	PayOption   string `json:"pay_option"`
 	CreatedTime time.Time
 }
 
 type UserReceiptMapJSON struct {
 	Receipt ReceiptJSON `json:"receipt"`
-	UserID int         `json:"user_id"`
+	UserID  int         `json:"user_id"`
 }
-

@@ -9,7 +9,7 @@ import (
 )
 
 func (r *ReceiptsService) AddToCart(userId int, cartItem *pkg.CartItem) error {
-	var realQuantity, tmp int
+	var realQuantity, tmp, cartId int
 
 	cartItem.UserID = userId
 	if err := r.checkCompareDBQuantities(&realQuantity, cartItem); err != nil {
@@ -19,7 +19,7 @@ func (r *ReceiptsService) AddToCart(userId int, cartItem *pkg.CartItem) error {
 	if err != nil {
 		return err
 	}
-	if err := r.getCurrentCartNumberOrCreate(tx, cartItem); err != nil {
+	if cartId, err = r.getCurrentCartNumberOrCreate(tx, cartItem); err != nil {
 		_ = tx.Rollback()
 		return err
 	}
@@ -38,7 +38,7 @@ func (r *ReceiptsService) AddToCart(userId int, cartItem *pkg.CartItem) error {
 		return nil
 	} else if err == sql.ErrNoRows {
 		//log.Printf("creating new cart_item...\n")
-		if err := r.createCartItem(tx, cartItem); err != nil {
+		if err := r.createCartItem(tx, cartItem, cartId); err != nil {
 			_ = tx.Rollback()
 			return err
 		}
@@ -50,11 +50,9 @@ func (r *ReceiptsService) AddToCart(userId int, cartItem *pkg.CartItem) error {
 	//проверки
 }
 
-func (r *ReceiptsService) createCartItem(tx *sqlx.Tx, cartItem *pkg.CartItem) error {
-	var id int // to delete
-
-	query := fmt.Sprintf("INSERT INTO %s (product_id, shop_id, user_id, quantity, index) VALUES ($1, $2, $3, $4, $5) RETURNING id", cartItemTable)
-	err := tx.Get(&id, query, cartItem.ProductID, cartItem.ShopID, cartItem.UserID, cartItem.Quantity, cartItem.CartNumber)
+func (r *ReceiptsService) createCartItem(tx *sqlx.Tx, cartItem *pkg.CartItem, cartId int) error {
+	query := fmt.Sprintf("INSERT INTO %s (product_id, quantity, cart_id) VALUES ($1, $2, $3) RETURNING id", cartItemTable)
+	_, err := tx.Exec(query, cartItem.ProductID, cartItem.Quantity, cartId)
 	if err != nil {
 		return err
 	}
@@ -72,9 +70,9 @@ func (r *ReceiptsService) updateCartItem(tx *sqlx.Tx, cartItem *pkg.CartItem) er
 }
 
 func (r *ReceiptsService) checkCartItemExists(tx *sqlx.Tx, cartItem *pkg.CartItem, tmp *int) error {
-	query := fmt.Sprintf("SELECT id, quantity FROM %s WHERE product_id=$1 AND shop_id=$2 AND user_id=$3 AND index=$4", cartItemTable)
+	query := fmt.Sprintf("SELECT id, quantity FROM %s WHERE product_id=$1 AND cart_id=(SELECT id FROM %s WHERE shop_id=$2 AND user_id=$3 AND number=$4 LIMIT 1)", cartItemTable, cartsTable)
 	*tmp = cartItem.Quantity
-	err := tx.Get(cartItem, query, cartItem.ProductID, cartItem.ShopID, cartItem.UserID, cartItem.CartNumber)
+	err := tx.Get(cartItem, query, cartItem.ProductID, cartItem.ShopID, cartItem.UserID, cartItem.Number)
 	if err != nil {
 		//log.Printf("cart_item doesnt exists\n")
 		return err
@@ -99,19 +97,21 @@ func (r *ReceiptsService) checkCompareDBQuantities(realQuantity *int, cartItem *
 	return err
 }
 
-func (r *ReceiptsService) getCurrentCartNumberOrCreate(tx *sqlx.Tx, cartItem *pkg.CartItem) error {
-	query := fmt.Sprintf("SELECT carts_number FROM %s WHERE user_id=$1 AND shop_id=$2 LIMIT 1", userCartsTable)
-	err := tx.Get(&(cartItem.CartNumber), query, cartItem.UserID, cartItem.ShopID)
+func (r *ReceiptsService) getCurrentCartNumberOrCreate(tx *sqlx.Tx, cartItem *pkg.CartItem) (int, error) {
+	var cartId int
+
+	query := fmt.Sprintf("SELECT id, number FROM %s WHERE user_id=$1 AND shop_id=$2 ORDER BY number DESC", cartsTable)
+	err := tx.QueryRowx(query, cartItem.UserID, cartItem.ShopID).Scan(&cartId, &cartItem.Number)
 	if err == sql.ErrNoRows {
-		query = fmt.Sprintf("INSERT INTO %s (user_id, shop_id, carts_number) VALUES ($1, $2, 1)", userCartsTable)
-		_, err = tx.Exec(query, cartItem.UserID, cartItem.ShopID)
+		query = fmt.Sprintf("INSERT INTO %s (user_id, shop_id, number) VALUES ($1, $2, 1) RETURNING id", cartsTable)
+		err = tx.Get(&cartId, query, cartItem.UserID, cartItem.ShopID)
 		if err != nil {
-			return err
+			return 0, err
 		}
-		cartItem.CartNumber = 1
-		//log.Printf("user_carts created: %d\n", cartItem.CartNumber)
-		return nil
+		cartItem.Number = 1
+		//log.Printf("user_carts created: %d\n", cartItem.Number)
+		return cartId, nil
 	}
-	//log.Printf("user_carts founded: %d\n", cartItem.CartNumber)
-	return err
+	//log.Printf("user_carts founded: %d\n", cartItem.Number)
+	return cartId, err
 }

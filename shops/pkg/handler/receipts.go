@@ -29,7 +29,7 @@ func (h *Handler) AddToCart(c *gin.Context) {
 }
 
 func (h *Handler) GetCarts(c *gin.Context) {
-	var carts []pkg.CartJSON
+	var carts *[]pkg.CartJSON
 
 	userId, err := h.getUserId(c)
 	if err != nil {
@@ -42,7 +42,7 @@ func (h *Handler) GetCarts(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, map[string]interface{}{
-		"data": carts,
+		"data": *carts,
 	})
 }
 
@@ -69,15 +69,19 @@ func (h *Handler) DeleteFromCart(c *gin.Context) {
 
 func (h *Handler) CreateReceipt(c *gin.Context) {
 	var rec struct {
-		ShopId int `json:"shop_id"`
+		ShopId      int `json:"shop_id"`
+		PayOptionId int `json:"payoption"`
 	}
 	userId, err := h.getUserId(c)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-
-	if _, err := h.serv.CreateReceipt(rec.ShopId, userId); err != nil {
+	if err := c.BindJSON(&rec); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	if _, err = h.serv.CreateReceipt(rec.ShopId, userId, rec.PayOptionId); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -88,5 +92,17 @@ func (h *Handler) CreateReceipt(c *gin.Context) {
 }
 
 func (h *Handler) GetReceipts(c *gin.Context) {
-
+	userId, err := h.getUserId(c)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+	recs, err := h.serv.GetReceipts(userId)
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"data": *recs,
+	})
 }

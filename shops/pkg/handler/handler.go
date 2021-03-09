@@ -25,7 +25,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		api.GET("/carts", h.GetCarts)
 		api.DELETE("/carts", h.DeleteFromCart)
 		api.POST("/carts", h.CreateReceipt)
-		api.GET("/receips", h.GetReceipts)
+		api.GET("/receipts", h.GetReceipts)
 	}
 	return router
 }

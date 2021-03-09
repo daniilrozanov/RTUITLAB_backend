@@ -2,81 +2,65 @@ package repository
 
 import (
 	"fmt"
+	"log"
 	"shops/pkg"
 )
 
-func (r *ReceiptsService) GetCarts(userId int) ([]pkg.CartJSON, error) {
-	var cartItems *[][]pkg.CartItem
+func (r *ReceiptsService) GetCarts(userId int) (*[]pkg.CartJSON, error) {
+	var cartIds []int
 
-	cartItems, err := r.getCartItemsByUserId(userId)
+	query := fmt.Sprintf("SELECT DISTINCT ON (shop_id) id FROM %s WHERE user_id=$1 ORDER BY shop_id, number DESC", cartsTable)
+	err := r.db.Select(&cartIds, query, userId)
 	if err != nil {
 		return nil, err
 	}
-	return r.cartItemsToCartsJSON(cartItems)
+	return r.getCartsList(&cartIds)
 }
 
-func (r *ReceiptsService) cartItemsToCartsJSON(cartItems *[][]pkg.CartItem) ([]pkg.CartJSON, error) {
+func (r *ReceiptsService) getCartsList(cartIds *[]int) (*[]pkg.CartJSON, error) {
 	var carts []pkg.CartJSON
 
-	for _, x := range *cartItems {
+	for _, cartId := range *cartIds {
 		var cart pkg.CartJSON
-		var shop pkg.Shop
 
-		query := fmt.Sprintf("SELECT * FROM %s WHERE id=$1", shopsTable)
-		if err := r.db.Get(&shop, query, x[0].ShopID); err != nil {
+		// Заполнение информации о магазине корзины
+		query := fmt.Sprintf("SELECT * FROM %s WHERE id=(SELECT shop_id FROM %s WHERE id=$1)", shopsTable, cartsTable)
+		if err := r.db.Get(&(cart.Shop), query, cartId); err != nil {
 			return nil, err
 		}
-		cart.Shop = shop
-		cart.Index = x[0].CartNumber
-		for _, y := range x {
-			var prod pkg.ProductJSON
-
-			query := fmt.Sprintf("SELECT pr.id, title, cost, category, quantity FROM %s pr JOIN %s ci ON ci.product_id=pr.id WHERE pr.id=$1 AND shop_id=$2 AND user_id=$3 AND index=$4", productsTable, cartItemTable)
-			if err := r.db.Get(&prod, query, y.ProductID, y.ShopID, y.UserID, y.CartNumber); err != nil {
-				return nil, err
-			}
-			cart.Products = append(cart.Products, prod)
-			cart.SummaryCost += prod.Cost * prod.Quantity
-		}
-		carts = append(carts, cart)
-	}
-	return carts, nil
-}
-
-func (r *ReceiptsService) getCartItemsByUserId(userId int) (*[][]pkg.CartItem, error) {
-	var ret [][]pkg.CartItem
-
-	query := fmt.Sprintf("SELECT shop_id, carts_number FROM %s WHERE user_id=$1", userCartsTable)
-	rowsal, err := r.db.Queryx(query, userId) // пары магазин-корзина пользователя. магазины не повторяются
-	if err != nil {
-		return nil, err
-	}
-	for rowsal.Next() { // проход по каждому магазину-корзине
-		var userCart pkg.UserCarts   // текущий магазин-корзина
-		var cartItems []pkg.CartItem // объекты корзины для текущего магазина
-
-		rowsal.StructScan(&userCart)
-		query := fmt.Sprintf("SELECT * FROM %s WHERE user_id=$1 AND shop_id=$2 AND index=$3", cartItemTable)
-		rowssh, err := r.db.Queryx(query, userId, userCart.ShopID, userCart.NumberOfCarts) // sql объекты корзины пользователя для текущего магазина
+		// Получение списка объектов данной корзины
+		query = fmt.Sprintf("SELECT product_id, quantity FROM %s WHERE cart_id=$1", cartItemTable)
+		rowssh, err := r.db.Queryx(query, cartId)
 		if err != nil {
 			return nil, err
 		}
-		for rowssh.Next() { // проход по объектам корзины пользователя текущего магазина
-			var cartItem pkg.CartItem //экземпляр объекта
+		//Проход по списку объектов данной корзины
+		for rowssh.Next() {
+			var cartItem pkg.CartItem
+			var prod pkg.ProductJSON
 
-			rowssh.StructScan(&cartItem)
-			cartItems = append(cartItems, cartItem) // присоединение объекта корзины в список о-к для текущего магазина
+			err := rowssh.StructScan(&cartItem)
+			if err != nil {
+				return nil, err
+			}
+			//Получение информации о товаре и его количестве
+			query := fmt.Sprintf("SELECT id, title, cost, category FROM %s WHERE id=$1", productsTable)
+			if err := r.db.Get(&prod, query, cartItem.ProductID); err != nil {
+				return nil, err
+			}
+			log.Println(prod)
+			prod.Quantity = cartItem.Quantity
+			prod.EntireCost = prod.Cost * cartItem.Quantity
+			cart.SummaryCost += prod.EntireCost
+			cart.Products = append(cart.Products, prod)
+
 		}
 		if err := rowssh.Err(); err != nil {
 			return nil, err
 		}
-		if len(cartItems) > 0 {
-			ret = append(ret, cartItems) // присоединение объектов корзины для текущего магазина к списку всех объектов всех корзин пользователя
+		if len(cart.Products) > 0 {
+			carts = append(carts, cart)
 		}
 	}
-	if err := rowsal.Err(); err != nil {
-		return nil, err
-	}
-	return &ret, nil
+	return &carts, nil
 }
-

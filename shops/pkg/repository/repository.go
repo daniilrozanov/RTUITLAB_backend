@@ -13,11 +13,13 @@ type Products interface {
 
 type Receipts interface {
 	AddToCart(int, *pkg.CartItem) error
-	GetCarts(int) ([]pkg.CartJSON, error)
-	DeleteFromCart(item *pkg.CartItemsOnDeleteJSON, userID int) error
-	CreateReceipt(shopId, userId int) (int, error)
-	SetReceiptsSynchro(recIds []int) error
-	GetUnsynchronizedReceiptsIds(userId int) ([]int, error)
+	GetCarts(int) (*[]pkg.CartJSON, error)
+	DeleteFromCart(*pkg.CartItemsOnDeleteJSON, int) error
+	CreateReceipt(int, int, int) (int, error)
+	SetReceiptsSynchro(*[]int) error
+	GetUnsynchronizedReceiptsIds(int) (*[]int, error)
+	GetUserReceiptMap(*[]int) (*[]pkg.UserReceiptMapJSON, error)
+	GetReceipts(userId int) (*[]pkg.ReceiptJSON, error)
 }
 
 type Repository struct {

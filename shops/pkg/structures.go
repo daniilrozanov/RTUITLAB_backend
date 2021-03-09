@@ -5,12 +5,10 @@ import (
 )
 
 type Receipt struct {
-	Id              int    `json:"id"`
-	ShopID          int    `json:"shop_id"`
-	UserID          int    `json:"user_id"`
-	CartItemsNumber int    `json:""`
-	PayCase         string `json:"pay_case"`
-	CreateDate      time.Time
+	Cart
+	Id         int    `json:"id"`
+	PayOption  string `json:"pay_option"`
+	CreateDate time.Time
 }
 
 type Shop struct {
@@ -18,6 +16,13 @@ type Shop struct {
 	Title   string `json:"title"`
 	Address string `json:"address"`
 	Phone   string `json:"number"`
+}
+
+type Cart struct {
+	ID     int `db:"id"`
+	ShopID int `json:"shop_id" binding:"required" db:"shop_id"`
+	UserID int `json:"user_id" db:"user_id"`
+	Number int `json:"cart_number" db:"number"`
 }
 
 type Product struct {
@@ -38,17 +43,17 @@ type ShopsProducts struct {
 }
 
 type CartItem struct {
-	ID         int `json:"id"`
-	ProductID  int `json:"product_id" binding:"required" db:"product_id"`
-	ShopID     int `json:"shop_id" binding:"required" db:"shop_id"`
-	UserID     int `json:"user_id" db:"user_id"`
-	Quantity   int `json:"quantity" db:"quantity"`
-	CartNumber int `json:"cart_number" db:"index"`
+	ID        int `json:"id"`
+	ProductID int `json:"product_id" binding:"required" db:"product_id"`
+	Quantity  int `json:"quantity" db:"quantity"`
+	Cart
 }
 
+/*
 type UserCarts struct {
 	ID            int `json:"id"`
 	UserID        int
 	ShopID        int `db:"shop_id"`
 	NumberOfCarts int `db:"carts_number"`
 }
+*/

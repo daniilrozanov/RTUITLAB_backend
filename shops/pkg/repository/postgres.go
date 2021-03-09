@@ -20,8 +20,9 @@ const (
 	receiptsTable = "receipts"
 	shopsProductsTable = "shops_products"
 	cartItemTable = "cart_item"
-	userCartsTable = "user_carts"
+	cartsTable = "carts"
 	reseiptsSynchroTable = "receipts_synchro"
+	payOptionsTable = "pay_options"
 )
 
 func InitPostgresDB(cfg *PostgresConfig) (*sqlx.DB, error) {
