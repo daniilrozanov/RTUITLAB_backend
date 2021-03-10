@@ -23,21 +23,21 @@ type Receipts interface {
 	GetCarts(userId int) (*[]pkg.CartJSON, error)
 	DeleteFromCart(item *pkg.CartItemsOnDeleteJSON, userId int) error
 	CreateReceipt(shopId, userId, payOptId int) (int, error)
-	TrySynchroByUserId(userId int) error
+	//TrySynchroByUserId(userId int) error
 	GetReceipts(userId int) (*[]pkg.ReceiptJSON, error)
+	SendReceiptToRabbit(recId int) error
 }
 
 type Service struct {
 	Authorization
 	Products
 	Receipts
-	uConfs *UserServiceConfig
 }
 
-func InitNewService(uConfs *UserServiceConfig, repo *repository.Repository) *Service {
+func InitNewService(uConfs *UserServiceConfig, repo *repository.Repository, rabbitStruct *RabbitStruct) *Service {
 	return &Service{
 		Authorization: NewAuthService(uConfs, repo),
 		Products:      NewProductService(repo),
-		Receipts:      NewReceiptsService(repo),
+		Receipts:      NewReceiptsService(repo, rabbitStruct, uConfs),
 	}
 }

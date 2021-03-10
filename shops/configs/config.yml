@@ -14,3 +14,9 @@ db_pg:
   password: "1"
   dbname: "postgres"
   sslmode: "disable"
+
+rabbitmq:
+  host: "rabbit"
+  port: "5672"
+  username: "rabbit"
+  password: "1"

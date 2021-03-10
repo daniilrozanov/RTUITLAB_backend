@@ -9,25 +9,32 @@ import (
 	"time"
 )
 
-func (r *ReceiptsService) GetUserReceiptMap(recIds *[]int) (*[]pkg.UserReceiptMapJSON, error) {
+func (r *ReceiptsService) GetUserReceiptMap(recIds *[]int) ([]pkg.UserReceiptMapJSON, error) {
 	var urMap []pkg.UserReceiptMapJSON
 	var userIds []int
 	var recs *[]pkg.ReceiptJSON
 
-	query := fmt.Sprintf("SELECT user_id FROM %s WHERE id IN (SELECT cart_id FROM %s WHERE id IN ($1))", cartsTable, receiptsTable)
-	if err := r.db.Get(&userIds, query, *recIds); err != nil {
+	query := fmt.Sprintf("SELECT user_id FROM %s WHERE id IN (SELECT cart_id FROM %s WHERE id IN (?))", cartsTable, receiptsTable)
+	query, args, err := sqlx.In(query, *recIds)
+	query = r.db.Rebind(query)
+	if err := r.db.Select(&userIds, query, args...); err != nil {
 		return nil, err
 	}
-	recs, err := r.getReceiptsByIds(recIds)
+	if len(userIds) == 0 {
+		return nil, errors.New("users receipts not found")
+	}
+	recs, err = r.getReceiptsByIds(recIds)
 	if err != nil {
 		return nil, err
 	}
 	for i, _ := range *recs {
 		urMap = append(urMap, pkg.UserReceiptMapJSON{
 			UserID:  userIds[i],
+			Receipt: (*recs)[i],
 		})
 	}
-	return &urMap, nil
+
+	return urMap, nil
 }
 
 func (r *ReceiptsService) GetReceipts(userId int)  (*[]pkg.ReceiptJSON, error) {
@@ -94,7 +101,7 @@ func (r *ReceiptsService) getReceiptsByIds(recIds *[]int) (*[]pkg.ReceiptJSON, e
 			PayOption: payOpts[i],
 			CreatedTime: times[i],
 		})
-		log.Println("N: ", i, "payopt: ", payOpts[i], "ceratedate: ", times[i], "cartjson: ", x)
+		//log.Println("N: ", i, "payopt: ", payOpts[i], "ceratedate: ", times[i], "cartjson: ", x)
 	}
 	return &recs, nil
 }

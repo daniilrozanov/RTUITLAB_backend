@@ -18,6 +18,8 @@ const (
 	usersTable = "users"
 	productsTable = "products"
 	usersProductsTable = "users_products"
+	receiptsTable = "receipts"
+	usersReceiptsTable = "users_receipts"
 )
 
 func InitPostgresDB(cfg PostgresConfig) (*sqlx.DB, error){

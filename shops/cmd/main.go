@@ -16,7 +16,7 @@ import (
 )
 
 func main(){
-	time.Sleep(2 * time.Second)
+	time.Sleep(20 * time.Second)
 
 	if err := initConfigs(); err != nil {
 		log.Fatalf("Error occured while reading of config: %s", err)
@@ -45,8 +45,21 @@ func main(){
 		Scheme: viper.GetString("users_service.scheme"),
 	}
 
+	rabb, err := service.NewRabbitStruct(&service.RabbitConnectionConfig{
+		Host:     viper.GetString("rabbitmq.host"),
+		Port:     viper.GetString("rabbitmq.port"),
+		Username: viper.GetString("rabbitmq.username"),
+		Password: viper.GetString("rabbitmq.password"),
+	})
+
+	defer rabb.Channel.Close()
+
+	if err != nil {
+		log.Fatalf("Error occured while connecting with rabbitmq: %s", err)
+	}
+
 	repo := repository.NewRepository(db)
-	service := service.InitNewService(uConfs, repo)
+	service := service.InitNewService(uConfs, repo, &rabb)
 	handl := handler.InitNewHandler(service)
 	serv := new(pkg.Server)
 

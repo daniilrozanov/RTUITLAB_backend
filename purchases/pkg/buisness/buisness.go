@@ -20,14 +20,20 @@ type ProductLogging interface {
 	DeleteProduct(userId, prodId int) error
 }
 
+type Synchronization interface {
+	StartConsume() error
+}
+
 type Buisness struct {
 	Authorization
 	ProductLogging
+	Synchronization
 }
 
-func InitBuisnessLayer(r *repository.Repository) *Buisness {
+func InitBuisnessLayer(r *repository.Repository, rabbit *RabbitStruct) *Buisness {
 	return &Buisness{
 		Authorization: NewAuthService(*r),
 		ProductLogging: NewProductService(*r),
+		Synchronization: NewSynchroService(*rabbit, *r),
 	}
 }

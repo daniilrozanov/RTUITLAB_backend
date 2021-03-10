@@ -81,14 +81,23 @@ func (h *Handler) CreateReceipt(c *gin.Context) {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	if _, err = h.serv.CreateReceipt(rec.ShopId, userId, rec.PayOptionId); err != nil {
+	recId, err := h.serv.CreateReceipt(rec.ShopId, userId, rec.PayOptionId)
+	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	if err := h.serv.TrySynchroByUserId(userId); err != nil {
-		newErrorResponse(c, http.StatusCreated, err.Error())
+	if err := h.serv.SendReceiptToRabbit(recId); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"id": recId,
+	})
+	//if err := h.serv.TrySynchroByUserId(userId); err != nil {
+	//	newErrorResponse(c, http.StatusCreated, err.Error())
+	//	return
+	//}
+
 }
 
 func (h *Handler) GetReceipts(c *gin.Context) {

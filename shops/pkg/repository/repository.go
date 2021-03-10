@@ -18,7 +18,7 @@ type Receipts interface {
 	CreateReceipt(int, int, int) (int, error)
 	SetReceiptsSynchro(*[]int) error
 	GetUnsynchronizedReceiptsIds(int) (*[]int, error)
-	GetUserReceiptMap(*[]int) (*[]pkg.UserReceiptMapJSON, error)
+	GetUserReceiptMap(*[]int) ([]pkg.UserReceiptMapJSON, error)
 	GetReceipts(userId int) (*[]pkg.ReceiptJSON, error)
 }
 

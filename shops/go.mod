@@ -13,6 +13,7 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.9.0
 	github.com/spf13/viper v1.7.1
+	github.com/streadway/amqp v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
 	golang.org/x/text v0.3.5 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect

@@ -3,14 +3,11 @@ package repository
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 )
 
 func (r *ReceiptsService) CreateReceipt(shopId, userId, payOptionId int) (int, error) { // смотреть количество и наличие товаров
 	var ucId, recId, number int
-
-	log.Println(shopId, " - ", userId, " - ", payOptionId)
 
 	if err := r.checkPayOption(payOptionId); err != nil {
 		return 0, err

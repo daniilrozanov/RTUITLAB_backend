@@ -1,22 +1,25 @@
 package service
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
-	"net/http"
+	"github.com/streadway/amqp"
 	"shops/pkg"
 	"shops/pkg/repository"
 )
 
+type RabbitStruct struct {
+	Channel *amqp.Channel
+}
+
 type ReceiptsService struct {
 	uConfs *UserServiceConfig
+	rabbit *RabbitStruct
 	repo   *repository.Repository
 }
 
-func NewReceiptsService(repo *repository.Repository) *ReceiptsService {
-	return &ReceiptsService{repo: repo}
+func NewReceiptsService(repo *repository.Repository, rabbitStruct *RabbitStruct, uConfs *UserServiceConfig) *ReceiptsService {
+	return &ReceiptsService{repo: repo, rabbit: rabbitStruct, uConfs: uConfs}
 }
 
 func (r *ReceiptsService) AddToCart(userId int, cartItem *pkg.CartItem) error {
@@ -38,48 +41,28 @@ func (r *ReceiptsService) CreateReceipt(shopId, userId, payOptId int) (int, erro
 	return r.repo.CreateReceipt(shopId, userId, payOptId)
 }
 
-func (r *ReceiptsService) GetReceipts(userId int) (*[]pkg.ReceiptJSON, error) {
-	return r.repo.GetReceipts(userId)
+func (r *ReceiptsService) SendReceiptToRabbit(recId int) error {
+	var urMap []pkg.UserReceiptMapJSON
+	recIds := []int{recId}
+	urMap, err := r.repo.GetUserReceiptMap(&recIds)
+	if err != nil {
+		return err
+	}
+	data, err := json.Marshal(urMap[0])
+	if err != nil {
+		return err
+	}
+
+	q, err := r.rabbit.Channel.QueueDeclare("receipts", true, false, false, false, nil)
+	err = r.rabbit.Channel.Publish("", q.Name, false, false, amqp.Publishing{ContentType: "application/json", Body: data})
+	if err != nil {
+		return errors.New("Failed to publish a message: " + err.Error())
+	}
+	return nil
 }
 
-func (r *ReceiptsService) TrySynchroByUserId(userId int) error {
-	unsyncRecIds, err := r.repo.GetUnsynchronizedReceiptsIds(userId)
-	if err != nil {
-		return err
-	}
-	receipts, err := r.repo.GetUserReceiptMap(unsyncRecIds)
-	if err != nil {
-		return err
-	}
-	byteJSON, err := json.Marshal(*receipts)
-	if err != nil {
-		return err
-	}
-	cryptedJSON, err := encrypt(byteJSON, UsersTransportKey)
-	if err != nil {
-		return err
-	}
-	response, err := http.Post(r.getUserServiceURI(), "application/json", bytes.NewBuffer(cryptedJSON))
-	if err != nil {
-		return err
-	}
-	b, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return err
-	}
-	decryptedBody, err := decrypt(b, UsersTransportKey)
-	if err != nil {
-		return err
-	}
-	var responseJSON map[string]interface{}
-	err = json.Unmarshal(decryptedBody, responseJSON)
-	if err != nil {
-		return err
-	}
-	if responseJSON["status"] == "ok" {
-		return nil
-	}
-	return errors.New("service users not available")
+func (r *ReceiptsService) GetReceipts(userId int) (*[]pkg.ReceiptJSON, error) {
+	return r.repo.GetReceipts(userId)
 }
 
 func (a *ReceiptsService) getUserServiceURI() string {

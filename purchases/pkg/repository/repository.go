@@ -18,14 +18,21 @@ type ProductLogging interface {
 	DeleteProduct(userId, prodId int) error
 }
 
+type Receipts interface {
+	CheckDBConnection() bool
+	InsertReceipt(urmap templates.UserReceiptMapJSON) error
+}
+
 type Repository struct {
 	Authorization
 	ProductLogging
+	Receipts
 }
 
 func InitRepositoryLayer (db *sqlx.DB) *Repository{
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
 		ProductLogging: NewProductPostgres(db),
+		Receipts: NewReceiptsService(db),
 	}
 }
