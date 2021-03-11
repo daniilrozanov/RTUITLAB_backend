@@ -6,7 +6,6 @@ import (
 	"log"
 	templates "purchases/pkg"
 	"purchases/pkg/repository"
-	"time"
 )
 
 type SynchroService struct {
@@ -52,44 +51,32 @@ func (s *SynchroService) StartConsume() error {
 	if err != nil {
 		return err
 	}
-	go func () {
-		for s.repo.CheckDBConnection() {
-			for msg := range msgs {
-				var ur templates.UserReceiptMapJSON
-				data := msg.Body
-				if err := json.Unmarshal(data, &ur); err != nil {
-					log.Println("incorrect json urmap: " + err.Error())
-					continue
-				}
-				if err := s.repo.InsertReceipt(ur); err != nil {
-					log.Printf("failed to insert receipt: " + err.Error())
-					continue
-				}
-				log.Println("nothing to consume")
-			}
-			time.Sleep(1 * time.Second)
-		}
-		log.Fatal("connection with database lost")
-	}()
-	return nil
-}
-/*
-func (s *SynchroService) processQueue(msgs *<-chan amqp.Delivery) {
-	for s.repo.CheckDBConnection() {
-		log.Println("xxx")
-		for msg := range *msgs {
+	go func() {
+		log.Println("start synchronization")
+		for msg := range msgs {
 			var ur templates.UserReceiptMapJSON
 			data := msg.Body
 			if err := json.Unmarshal(data, &ur); err != nil {
-				log.Println("incorrect json urmap: " + err.Error())
-				continue
+				s.throwError("incorrect json urmap: " + err.Error(), q.Name, data)
+				return
 			}
 			if err := s.repo.InsertReceipt(ur); err != nil {
-				log.Printf("failed to insert receipt: " + err.Error())
-				continue
+				s.throwError("failed to insert receipt: " + err.Error(), q.Name, data)
+				return
 			}
+			log.Println("receipt synchronized")
 		}
-		time.Sleep(1 * time.Second)
+		log.Println("stop synchronization")
+	}()
+	return nil
+}
+
+func (s *SynchroService) throwError(errstr, qname string, data []byte) error{
+	log.Println(errstr)
+	err := s.rabbit.Channel.Publish("", qname, false, false, amqp.Publishing{ContentType: "application/json", Body: data})
+	log.Println("synchronization with shops stopped")
+	if err != nil {
+		return err
 	}
-	log.Fatal("connection with database lost...")
-}*/
+	return nil
+}

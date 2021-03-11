@@ -64,3 +64,5 @@ CREAte TABLE IF NOT EXISTS pay_options
     id     SERIAL PRIMARY KEY,
     option VARCHAR(256)
 );
+
+INSERT INTO shops (id, title, address, phone) VALUES (1, 'Тысяча мелочей', 'Самарская 134','+79948156309'), (2, 'Крепёж', 'Грибоедова 21', '+78849137751')

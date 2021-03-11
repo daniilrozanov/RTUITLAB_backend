@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"log"
@@ -25,13 +26,18 @@ func (r *ReceiptsService) CheckDBConnection() bool {
 
 func (r *ReceiptsService) InsertReceipt(urmap templates.UserReceiptMapJSON) error {
 	var recId int
+	var data []byte
 
+	data, err := json.Marshal(urmap.Receipt)
+	if err != nil {
+		return err
+	}
 	query := fmt.Sprintf("INSERT INTO %s (body) VALUES ($1) RETURNING id", receiptsTable)
 	tx, err := r.db.Beginx()
 	if err != nil {
 		return err
 	}
-	if err := tx.Get(&recId, query, urmap.Receipt); err != nil {
+	if err := tx.Get(&recId, query, data); err != nil {
 		tx.Rollback()
 		return err
 	}

@@ -23,7 +23,7 @@ services:
     image: postgres
     volumes: 
     - db-data-purchases:/var/lib/postgresql/data
-    - ./db-purchases/init.sql:/docker-entrypoint-initdb.d/init.sql
+    - ./purchases/scheme/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment: 
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1
@@ -44,7 +44,6 @@ services:
     - db-shops
     - rabbit
     - purchases
-
     networks:
     - l2
     - n1
