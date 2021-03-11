@@ -80,3 +80,7 @@ func (s *SynchroService) throwError(errstr, qname string, data []byte) error{
 	}
 	return nil
 }
+
+func (s *SynchroService) GetReceipts (userID int) ([]templates.ReceiptJSON, error) {
+	return s.repo.GetReceipts(userID)
+}

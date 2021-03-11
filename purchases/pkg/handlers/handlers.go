@@ -1,18 +1,18 @@
 package handlers
 
 import (
-	"purchases/pkg/buisness"
 	"github.com/gin-gonic/gin"
+	"purchases/pkg/buisness"
 )
 
 type Handler struct {
 	buis *buisness.Buisness
 }
 
-func InitHandlersLayer (bl *buisness.Buisness) *Handler {
+func InitHandlersLayer(bl *buisness.Buisness) *Handler {
 	return &Handler{buis: bl}
 }
-func (h *Handler) InitRouting() *gin.Engine{
+func (h *Handler) InitRouting() *gin.Engine {
 	router := gin.New()
 
 	auth := router.Group("")
@@ -21,15 +21,23 @@ func (h *Handler) InitRouting() *gin.Engine{
 		auth.POST("/signup", h.SignUp)
 		auth.POST("/confirm", h.ConfirmUser)
 	}
-	api := router.Group("/products", h.identifyUser)
+	api := router.Group("", h.identifyUser)
 	{
-
-		api.GET("/", h.GetItems)
-		api.POST("/", h.CreateItem)
-		api.GET("/:id", h.GetItem)
-		api.PUT("/:id", h.UpdateItem)
-		api.DELETE("/:id", h.DeleteItem)
+		products := api.Group("/products")
+		{
+			products.GET("/", h.GetItems)
+			products.POST("/", h.CreateItem)
+			products.GET("/:id", h.GetItem)
+			products.PUT("/:id", h.UpdateItem)
+			products.DELETE("/:id", h.DeleteItem)
+		}
+		receipts := api.Group("/receipts")
+		{
+			//receipts.PUT("/receipts/:id")
+			receipts.GET("/", h.GetReceipts)
+		}
 	}
+
 
 	return router
 }

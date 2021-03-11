@@ -46,3 +46,7 @@ type Shop struct {
 	Address string `json:"address"`
 	Phone   string `json:"number"`
 }
+
+type ReceiptDB struct {
+	Receipt []byte `db:"body"`
+}

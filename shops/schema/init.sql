@@ -65,4 +65,15 @@ CREAte TABLE IF NOT EXISTS pay_options
     option VARCHAR(256)
 );
 
-INSERT INTO shops (id, title, address, phone) VALUES (1, 'Тысяча мелочей', 'Самарская 134','+79948156309'), (2, 'Крепёж', 'Грибоедова 21', '+78849137751')
+CREAte TABLE IF NOT EXISTS products_custom_categories
+(
+    id         SERIAL PRIMARY KEY,
+    cart_id    INTEGER,
+    product_id INTEGER,
+    category   VARCHAR(128),
+    UNIQUE (cart_id, product_id)
+);
+
+INSERT INTO shops (id, title, address, phone)
+VALUES (1, 'Тысяча мелочей', 'Самарская 134', '+79948156309'),
+       (2, 'Крепёж', 'Грибоедова 21', '+78849137751')

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"fmt"
-	"log"
 	"shops/pkg"
 )
 
@@ -44,11 +43,12 @@ func (r *ReceiptsService) getCartsList(cartIds *[]int) (*[]pkg.CartJSON, error) 
 				return nil, err
 			}
 			//Получение информации о товаре и его количестве
-			query := fmt.Sprintf("SELECT id, title, cost, category FROM %s WHERE id=$1", productsTable)
-			if err := r.db.Get(&prod, query, cartItem.ProductID); err != nil {
+			query := fmt.Sprintf("SELECT p.id, title, cost, coalesce(cp.category, p.category) FROM %s p LEFT JOIN %s cp ON p.id=cp.product_id WHERE p.id=$1 AND (cp.cart_id=$2 OR cp.cart_id IS NULL)", productsTable, productsCustomCategoriesTable)
+			if err := r.db.QueryRow(query, cartItem.ProductID, cartId).Scan(&prod.ID, &prod.Title, &prod.Cost, &prod.Category); err != nil {
 				return nil, err
 			}
-			log.Println(prod)
+			//query := fmt.Sprintf("SELECT category FROM %s WHERE cart_id=$1 AND product_id=$2", productsCustomCategoriesTable)
+			//if err := r.db.Get(&prod, query)
 			prod.Quantity = cartItem.Quantity
 			prod.EntireCost = prod.Cost * cartItem.Quantity
 			cart.SummaryCost += prod.EntireCost

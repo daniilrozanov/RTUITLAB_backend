@@ -22,6 +22,7 @@ type ProductLogging interface {
 
 type Synchronization interface {
 	StartConsume() error
+	GetReceipts (userID int) ([]templates.ReceiptJSON, error)
 }
 
 type Buisness struct {

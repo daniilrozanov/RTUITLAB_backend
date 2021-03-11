@@ -43,8 +43,26 @@ func (r *ReceiptsService) InsertReceipt(urmap templates.UserReceiptMapJSON) erro
 	}
 	query = fmt.Sprintf("INSERT INTO %s (user_id, receipt_id) VALUES ($1, $2)", usersReceiptsTable)
 	if _, err := tx.Exec(query, urmap.UserID, recId); err != nil {
+		tx.Rollback()
 		return err
 	}
 	tx.Commit()
 	return nil
+}
+
+func (r *ReceiptsService) GetReceipts (userID int) ([]templates.ReceiptJSON, error){
+	var recsdb []templates.ReceiptDB
+	var recs []templates.ReceiptJSON
+
+	query := fmt.Sprintf("SELECT body FROM %s WHERE id IN (SELECT receipt_id FROM %s WHERE user_id=$1)", receiptsTable, usersReceiptsTable)
+	if err := r.db.Select(&recsdb, query, userID); err != nil {
+		return nil, err
+	}
+
+	for _, x := range recsdb {
+		var rec templates.ReceiptJSON
+		json.Unmarshal(x.Receipt, &rec)
+		recs = append(recs, rec)
+	}
+	return recs, nil
 }

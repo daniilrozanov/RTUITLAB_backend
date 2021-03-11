@@ -12,7 +12,7 @@ type Products interface {
 }
 
 type Receipts interface {
-	AddToCart(int, *pkg.CartItem) error
+	AddToCart(int, *pkg.CartItemJSON) error
 	GetCarts(int) (*[]pkg.CartJSON, error)
 	DeleteFromCart(*pkg.CartItemsOnDeleteJSON, int) error
 	CreateReceipt(int, int, int) (int, error)

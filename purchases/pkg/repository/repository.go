@@ -21,6 +21,7 @@ type ProductLogging interface {
 type Receipts interface {
 	CheckDBConnection() bool
 	InsertReceipt(urmap templates.UserReceiptMapJSON) error
+	GetReceipts (userID int) ([]templates.ReceiptJSON, error)
 }
 
 type Repository struct {

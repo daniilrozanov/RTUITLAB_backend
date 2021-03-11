@@ -7,7 +7,7 @@ import (
 )
 
 func (h *Handler) AddToCart(c *gin.Context) {
-	var cartItem pkg.CartItem
+	var cartItem pkg.CartItemJSON
 
 	if err := c.BindJSON(&cartItem); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())

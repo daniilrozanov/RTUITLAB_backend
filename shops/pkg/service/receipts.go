@@ -22,7 +22,7 @@ func NewReceiptsService(repo *repository.Repository, rabbitStruct *RabbitStruct,
 	return &ReceiptsService{repo: repo, rabbit: rabbitStruct, uConfs: uConfs}
 }
 
-func (r *ReceiptsService) AddToCart(userId int, cartItem *pkg.CartItem) error {
+func (r *ReceiptsService) AddToCart(userId int, cartItem *pkg.CartItemJSON) error {
 	if cartItem.Quantity == 0 {
 		cartItem.Quantity = 1
 	}

@@ -23,6 +23,7 @@ const (
 	cartsTable = "carts"
 	reseiptsSynchroTable = "receipts_synchro"
 	payOptionsTable = "pay_options"
+	productsCustomCategoriesTable = "products_custom_categories"
 )
 
 func InitPostgresDB(cfg *PostgresConfig) (*sqlx.DB, error) {

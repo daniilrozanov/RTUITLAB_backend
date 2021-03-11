@@ -8,8 +8,9 @@ import (
 	"shops/pkg"
 )
 
-func (r *ReceiptsService) AddToCart(userId int, cartItem *pkg.CartItem) error {
+func (r *ReceiptsService) AddToCart(userId int, cartItemJ *pkg.CartItemJSON) error {
 	var realQuantity, tmp, cartId int
+	cartItem := &cartItemJ.CartItem
 
 	cartItem.UserID = userId
 	if err := r.checkCompareDBQuantities(&realQuantity, cartItem); err != nil {
@@ -25,7 +26,6 @@ func (r *ReceiptsService) AddToCart(userId int, cartItem *pkg.CartItem) error {
 	}
 	if err := r.checkCartItemExists(tx, cartItem, &tmp); err == nil {
 		cartItem.Quantity += tmp
-		//log.Printf("finding existing cart_item...%d\n", cartItem.Quantity)
 		if err := r.checkCompareQuantities(realQuantity, cartItem.Quantity); err != nil {
 			_ = tx.Rollback()
 			return err
@@ -34,20 +34,23 @@ func (r *ReceiptsService) AddToCart(userId int, cartItem *pkg.CartItem) error {
 			_ = tx.Rollback()
 			return err
 		}
-		_ = tx.Commit()
-		return nil
 	} else if err == sql.ErrNoRows {
-		//log.Printf("creating new cart_item...\n")
 		if err := r.createCartItem(tx, cartItem, cartId); err != nil {
 			_ = tx.Rollback()
 			return err
 		}
-		_ = tx.Commit()
-		return nil
+	} else {
+		_ = tx.Rollback()
+		return err
 	}
-	_ = tx.Rollback()
-	return err
-	//проверки
+	if cartItemJ.Category != "" {
+		query := fmt.Sprintf("INSERT INTO %s (cart_id, product_id, category) VALUES ($1, $2, $3) ON CONFLICT (cart_id, product_id) DO UPDATE SET category=$3", productsCustomCategoriesTable)
+		if _, err := r.db.Exec(query, cartId, cartItem.ProductID, cartItemJ.Category); err != nil {
+			return err
+		}
+	}
+	_ = tx.Commit()
+	return nil
 }
 
 func (r *ReceiptsService) createCartItem(tx *sqlx.Tx, cartItem *pkg.CartItem, cartId int) error {
@@ -56,7 +59,6 @@ func (r *ReceiptsService) createCartItem(tx *sqlx.Tx, cartItem *pkg.CartItem, ca
 	if err != nil {
 		return err
 	}
-	//log.Printf("cart_item created: %d", id)
 	return nil
 }
 
@@ -77,7 +79,6 @@ func (r *ReceiptsService) checkCartItemExists(tx *sqlx.Tx, cartItem *pkg.CartIte
 		//log.Printf("cart_item doesnt exists\n")
 		return err
 	}
-	//log.Printf("cart_item exists\n")
 	return nil
 }
 
@@ -109,9 +110,7 @@ func (r *ReceiptsService) getCurrentCartNumberOrCreate(tx *sqlx.Tx, cartItem *pk
 			return 0, err
 		}
 		cartItem.Number = 1
-		//log.Printf("user_carts created: %d\n", cartItem.Number)
 		return cartId, nil
 	}
-	//log.Printf("user_carts founded: %d\n", cartItem.Number)
 	return cartId, err
 }

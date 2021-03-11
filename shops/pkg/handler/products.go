@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"shops/pkg"
@@ -27,7 +26,6 @@ func (h *Handler) CreateProduct(c *gin.Context) {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	fmt.Printf("%d %d\n", data.ShopsCount[0].ShopID, data.ShopsCount[0].Quantity)
 	id, err := h.serv.ReceiveProduct(data.Prod, data.ShopsCount)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
