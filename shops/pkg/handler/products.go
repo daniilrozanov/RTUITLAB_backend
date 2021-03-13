@@ -6,10 +6,6 @@ import (
 	"shops/pkg"
 )
 
-type CreateProductData struct {
-	Prod       pkg.Product         `json:"product" binding:"required"`
-	ShopsCount []pkg.ShopsProducts `json:"map" binding:"required"`
-}
 
 type getAllProductsResponse struct {
 	Data []pkg.Product `json:"data"`
@@ -20,7 +16,7 @@ type getAllShopsResponse struct {
 }
 
 func (h *Handler) CreateProduct(c *gin.Context) {
-	var data CreateProductData
+	var data pkg.CreateProductData
 
 	if err := c.BindJSON(&data); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())

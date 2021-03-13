@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/streadway/amqp"
+	"log"
 	"shops/pkg"
 	"shops/pkg/repository"
 )
@@ -61,6 +62,23 @@ func (r *ReceiptsService) SendReceiptToRabbit(recId int) error {
 	return nil
 }
 
+func (r *ReceiptsService) SendUnsyncReceiptsToRabbit() error {
+	recIds, err := r.repo.GetUnsyncReceiptsIds(0)
+	log.Println(recIds)
+	if err != nil {
+		return err
+	}
+	for _, x := range recIds {
+		if err := r.SendReceiptToRabbit(x); err != nil {
+			return err
+		}
+	}
+	if err := r.repo.SetReceiptsSynchro(&recIds); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *ReceiptsService) GetReceipts(userId int) (*[]pkg.ReceiptJSON, error) {
 	return r.repo.GetReceipts(userId)
 }
@@ -70,4 +88,8 @@ func (a *ReceiptsService) getUserServiceURI() string {
 		return a.uConfs.Scheme + a.uConfs.Host + "/" + a.uConfs.SynchroURN
 	}
 	return a.uConfs.Scheme + a.uConfs.Host + ":" + a.uConfs.Port + "/" + a.uConfs.SynchroURN
+}
+
+func (r *ReceiptsService) SetReceiptsSynchro(recIds *[]int) error {
+	return r.repo.SetReceiptsSynchro(recIds)
 }

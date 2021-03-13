@@ -17,9 +17,9 @@ type Receipts interface {
 	DeleteFromCart(*pkg.CartItemsOnDeleteJSON, int) error
 	CreateReceipt(int, int, int) (int, error)
 	SetReceiptsSynchro(*[]int) error
-	GetUnsynchronizedReceiptsIds(int) (*[]int, error)
 	GetUserReceiptMap(*[]int) ([]pkg.UserReceiptMapJSON, error)
 	GetReceipts(userId int) (*[]pkg.ReceiptJSON, error)
+	GetUnsyncReceiptsIds(userId int) ([]int, error)
 }
 
 type Repository struct {

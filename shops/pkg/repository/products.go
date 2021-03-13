@@ -19,6 +19,7 @@ func (p *ProductPostgres) ReceiveProduct(prod pkg.Product, sc []pkg.ShopsProduct
 		return 0, err
 	}
 
+	
 	//ВСТАВКА ТОВАРА, ЕСЛИ ЕГО НЕТ В БАЗЕ ДАННЫХ
 	if err := p.insertIfNotExists(tx, &prod); err != nil {
 		tx.Rollback()

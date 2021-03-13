@@ -1,0 +1,12 @@
+rabbitmq:
+  host: "rabbit"
+  port: "5672"
+  username: "rabbit"
+  password: "1"
+
+db_pg:
+  host: "db-fabric"
+  port: "5432"
+  username: "postgres"
+  dbname: "postgres"
+  sslmode: "disable"

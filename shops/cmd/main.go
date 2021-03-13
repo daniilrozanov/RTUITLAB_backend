@@ -2,17 +2,15 @@ package main
 
 import (
 	"github.com/joho/godotenv"
-	"github.com/spf13/viper"
-	"time"
-
-	//_ "github.com/jackc/pgx/v4"
 	_ "github.com/lib/pq"
+	"github.com/spf13/viper"
 	"log"
 	"os"
 	"shops/pkg"
 	"shops/pkg/handler"
 	"shops/pkg/repository"
 	"shops/pkg/service"
+	"time"
 )
 
 func main(){
@@ -62,6 +60,10 @@ func main(){
 	service := service.InitNewService(uConfs, repo, &rabb)
 	handl := handler.InitNewHandler(service)
 	serv := new(pkg.Server)
+
+	if err := service.SendUnsyncReceiptsToRabbit(); err != nil {
+		log.Println("synchronization failed: ", err.Error())
+	}
 
 	if err := serv.Start(viper.GetString("port"), handl.InitRoutes()); err != nil {
 		log.Fatalf("Error occured while server tried to start: %s", err.Error())

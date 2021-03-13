@@ -1,4 +1,4 @@
-FROM golang:1.16-buster
+FROM golang:1.16-alpine
 
 ENV GOPATH=/
 COPY ./ ./

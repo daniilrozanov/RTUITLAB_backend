@@ -80,10 +80,34 @@ services:
       - RABBITMQ_DEFAULT_USER=rabbit
       - RABBITMQ_DEFAULT_PASS=1
 
+  fabric:
+    build: ./fabric
+    environment: 
+    - DB_PASSWORD=1
+    networks:
+    - rabbitmq
+    - l3
+    depends_on:
+    - rabbit
+    - db-fabric
+
+  db-fabric:
+    image: postgres
+    volumes: 
+    - db-data-fabric:/var/lib/postgresql/data
+    environment: 
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1
+      POSTGRES_DATABASE: postgres
+    networks:
+    - l3
+
 networks: 
+  l1:
+    driver: bridge
   l2:
     driver: bridge
-  l1:
+  l3:
     driver: bridge
   n1:
     driver: bridge
@@ -94,3 +118,4 @@ volumes:
   db-data-purchases:
   db-data-shops:
   rabbit-data:
+  db-data-fabric:

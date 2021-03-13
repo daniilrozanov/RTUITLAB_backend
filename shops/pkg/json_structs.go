@@ -43,3 +43,8 @@ type CartItemJSON struct {
 	CartItem
 	Category string `json:",omitempty"`
 }
+
+type CreateProductData struct {
+	Prod       Product         `json:"product" binding:"required"`
+	ShopsCount []ShopsProducts `json:"map" binding:"required"`
+}

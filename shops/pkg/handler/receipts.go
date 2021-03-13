@@ -90,6 +90,11 @@ func (h *Handler) CreateReceipt(c *gin.Context) {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
+	recIds := []int{recId}
+	if err := h.serv.SetReceiptsSynchro(&recIds); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 	c.JSON(http.StatusOK, map[string]interface{}{
 		"id": recId,
 	})
