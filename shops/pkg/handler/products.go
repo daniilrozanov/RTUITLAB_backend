@@ -15,23 +15,6 @@ type getAllShopsResponse struct {
 	Data []pkg.Shop `json:"data"`
 }
 
-func (h *Handler) CreateProduct(c *gin.Context) {
-	var data pkg.CreateProductData
-
-	if err := c.BindJSON(&data); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
-	id, err := h.serv.ReceiveProduct(data.Prod, data.ShopsCount)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-	c.JSON(http.StatusOK, map[string]int{
-		"id": id,
-	})
-}
-
 func (h *Handler) GetProducts(c *gin.Context) {
 	prods, err := h.serv.GetAllProducts()
 	if err != nil {

@@ -14,8 +14,7 @@ type Authorization interface {
 type Products interface {
 	GetAllShops() ([]pkg.Shop, error)
 	GetAllProducts() ([]pkg.Product, error)
-	ReceiveProduct(prod pkg.Product, sc []pkg.ShopsProducts) (int, error)
-	//UpdateProduct(prod *pkg.Product) error
+	StartConsume() error
 }
 
 type Receipts interface {

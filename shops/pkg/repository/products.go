@@ -2,44 +2,37 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"shops/pkg"
-	"strconv"
-	"strings"
 )
 
 type ProductPostgres struct {
 	db *sqlx.DB
 }
 
-func (p *ProductPostgres) ReceiveProduct(prod pkg.Product, sc []pkg.ShopsProducts) (int, error) {
-	tx, err := p.db.Begin()
-	if err != nil {
-		return 0, err
-	}
+func (p *ProductPostgres) ReceiveProduct(prod pkg.Product, sc []pkg.ShopsProducts) error {
+	var pId int
 
-	
-	//ВСТАВКА ТОВАРА, ЕСЛИ ЕГО НЕТ В БАЗЕ ДАННЫХ
-	if err := p.insertIfNotExists(tx, &prod); err != nil {
+	tx, err := p.db.Beginx()
+	if err != nil {
+		return err
+	}
+	query := fmt.Sprintf("INSERT INTO %s (title, description, cost, category, code) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (code) DO UPDATE SET cost = EXCLUDED.cost RETURNING id", productsTable)
+	if err := tx.Get(&pId, query, prod.Title, prod.Description, prod.Cost, prod.Category, prod.Code); err != nil {
 		tx.Rollback()
-		return 0, err
+		return errors.New("error while insert or update product: " + err.Error())
 	}
-	values := make([]string, len(sc))
-	for i := 0; i < len(sc); i++ {
-		sc[i].ProductID = prod.ID
-		values[i] = "( " + strconv.Itoa(sc[i].ProductID) + ", " + strconv.Itoa(sc[i].ShopID) + ", " + strconv.Itoa(sc[i].Quantity) + " )"
+	for _, x := range sc {
+		query = fmt.Sprintf("INSERT INTO %s (product_id, shop_id, quantity) VALUES ($1, $2, $3) ON CONFLICT (product_id, shop_id) DO UPDATE SET quantity=%s.quantity+$3", shopsProductsTable, shopsProductsTable)
+		if _, err := tx.Exec(query, pId, x.ShopID, x.Quantity); err != nil {
+			tx.Rollback()
+			return errors.New("error while insert or update product quantities: " + err.Error())
+		}
 	}
-	valuestr := strings.Join(values, ", ")
-	query := fmt.Sprintf("INSERT INTO %s (product_id, shop_id, quantity) VALUES %s", shopsProductsTable, valuestr)
-	if _, err = tx.Exec(query); err != nil {
-		tx.Rollback()
-		return 0, err
-	}
-	if err = tx.Commit(); err != nil {
-		return 0, err
-	}
-	return prod.ID, nil
+	tx.Commit()
+	return nil
 }
 
 func (p *ProductPostgres) GetAllProducts() ([]pkg.Product, error) {

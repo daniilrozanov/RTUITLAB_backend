@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
 	"log"
@@ -19,10 +18,6 @@ func main(){
 	if err := initConfigs(); err != nil {
 		log.Fatalf("Error occured while reading of config: %s", err)
 	}
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error occured while reading env variables: %s", err)
-	}
-
 	db, err := repository.InitPostgresDB(&repository.PostgresConfig{
 		Host:     viper.GetString("db_pg.host"),
 		Port:     viper.GetString("db_pg.port"),
@@ -34,7 +29,6 @@ func main(){
 	if err != nil {
 		log.Fatalf("Error occured while connecting with database: %s", err)
 	}
-
 	uConfs := &service.UserServiceConfig{
 		Host: viper.GetString("users_service.host"),
 		Port: viper.GetString("users_service.port"),
@@ -62,7 +56,10 @@ func main(){
 	serv := new(pkg.Server)
 
 	if err := service.SendUnsyncReceiptsToRabbit(); err != nil {
-		log.Println("synchronization failed: ", err.Error())
+		log.Println("synchronization with purchases failed: ", err.Error())
+	}
+	if err := service.StartConsume(); err != nil {
+		log.Println("synchronization with fabric failed: ", err.Error())
 	}
 
 	if err := serv.Start(viper.GetString("port"), handl.InitRoutes()); err != nil {

@@ -1,11 +1,7 @@
-FROM golang:1.16-alpine
+FROM scratch
 
-ENV GOPATH=/
-COPY ./ ./
-#RUN apt-get update && apt-get -y install postgresql-client && \
-
-RUN go mod download && \
-go build -o main ./cmd/main.go
+COPY ./configs ./configs
+COPY main ./
 
 CMD ["./main"]
 

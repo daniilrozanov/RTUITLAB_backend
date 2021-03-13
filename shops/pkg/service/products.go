@@ -17,12 +17,12 @@ func NewProductService(repo *repository.Repository, rabbit *RabbitStruct) *Produ
 	return &ProductService{repo: repo, rabbit: rabbit}
 }
 
-func (s *ProductService) StartConsume() error {
-	q, err := s.rabbit.Channel.QueueDeclare("products", true, false, false, false, nil)
+func (p *ProductService) StartConsume() error {
+	q, err := p.rabbit.Channel.QueueDeclare("products", true, false, false, false, nil)
 	if err != nil {
 		return err
 	}
-	msgs, err := s.rabbit.Channel.Consume(q.Name, "", true, false, false, false, nil)
+	msgs, err := p.rabbit.Channel.Consume(q.Name, "", true, false, false, false, nil)
 	if err != nil {
 		return err
 	}
@@ -31,17 +31,19 @@ func (s *ProductService) StartConsume() error {
 		for msg := range msgs {
 			var cpd pkg.CreateProductData
 
-			_ = json.Unmarshal(msg.Body, &cpd)
-			if _, err := s.repo.ReceiveProduct(cpd.Prod, cpd.ShopsCount); err != nil {
+			if err := json.Unmarshal(msg.Body, &cpd); err != nil {
+				log.Println("error while parsing json: ", err.Error())
 				return
 			}
+			if err := p.repo.ReceiveProduct(cpd.Prod, cpd.ShopsCount); err != nil {
+				log.Println("synchronization with fabric stopped: ", err.Error())
+				return
+			}
+			log.Println("received: ", cpd.Prod.Title)
 		}
+		log.Println("synchronization with fabric stopped.")
 	}()
 	return nil
-}
-
-func (p *ProductService) ReceiveProduct(prod pkg.Product, sc []pkg.ShopsProducts) (int, error) {
-	return p.repo.ReceiveProduct(prod, sc)
 }
 
 func (p *ProductService) GetAllProducts() ([]pkg.Product, error) {

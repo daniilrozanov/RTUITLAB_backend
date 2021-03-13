@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
 	"log"
@@ -19,10 +18,6 @@ func main() {
 	if err := initConfigs(); err != nil {
 		log.Fatalf("Error occured while reading config: %s", err)
 	}
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error occured while reading env variables: %s", err)
-	}
-
 	db, err := repository.InitPostgresDB(repository.PostgresConfig{
 		Host:     viper.GetString("db_pg.host"),
 		Port:     viper.GetString("db_pg.port"),

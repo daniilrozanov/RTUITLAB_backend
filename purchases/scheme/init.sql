@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS products
 CREATE TABLE IF NOT EXISTS users
 (
     id            SERIAL PRIMARY KEY,
-    name          VARCHAR(64),
+    name          VARCHAR(64) UNIQUE ,
     password_hash VARCHAR(256)
 );
 

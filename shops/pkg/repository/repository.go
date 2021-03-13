@@ -8,7 +8,7 @@ import (
 type Products interface {
 	GetAllShops() ([]pkg.Shop, error)
 	GetAllProducts() ([]pkg.Product, error)
-	ReceiveProduct(pkg.Product, []pkg.ShopsProducts) (int, error)
+	ReceiveProduct(pkg.Product, []pkg.ShopsProducts) error
 }
 
 type Receipts interface {
