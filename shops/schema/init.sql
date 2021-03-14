@@ -76,4 +76,7 @@ CREAte TABLE IF NOT EXISTS products_custom_categories
 
 INSERT INTO shops (id, title, address, phone)
 VALUES (1, 'Тысяча мелочей', 'Самарская 134', '+79948156309'),
-       (2, 'Крепёж', 'Грибоедова 21', '+78849137751')
+       (2, 'Крепёж', 'Грибоедова 21', '+78849137751');
+
+INSERT INTO  pay_options (option)
+VALUES ('VISA'), ('MasterCard'), ('МИР'), ('Google Pay'), ('Apple Pay'), ('Samsung Pay')

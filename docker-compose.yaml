@@ -4,13 +4,14 @@ services:
   purchases:
     build: ./purchases
     command: ./main
+    container_name: purchases
     environment:
       - DB_PASSWORD=1
       - JWT_SECRET_KEY=H+0MpgoFbwAcmXISyCS9vr0x(WAkc@
       - PASS_GEN_SALT=NZIl!#Qv$an(4akm*wP9=jo&2!55UR)
       - USERS_TRANSPORT_KEY=Zr8(#K95vi8kdUlniC7VaWSsYxUFNhBy
-    ports:
-    - 8080:8080
+    expose:
+    - 8080
     depends_on: 
     - db-purchases
     - rabbit
@@ -18,9 +19,11 @@ services:
     - l1
     - n1
     - rabbitmq
+    - proxy
 
   db-purchases:
     image: postgres
+    container_name: db-purchases
     volumes: 
     - db-data-purchases:/var/lib/postgresql/data
     - ./purchases/scheme/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -34,12 +37,13 @@ services:
   shops:
     build: ./shops
     command: ./main
+    container_name: shops
     environment:
       - USERS_TRANSPORT_KEY=Zr8(#K95vi8kdUlniC7VaWSsYxUFNhBy
       - JWT_SECRET_KEY=)0OHGFz1Mo9a@rs)%IYNxV3kBf3txnWm
       - DB_PASSWORD=1
-    ports: 
-    - 8081:8080
+    expose: 
+    - 8080
     depends_on:
     - db-shops
     - rabbit
@@ -48,9 +52,11 @@ services:
     - l2
     - n1
     - rabbitmq
+    - proxy
 
   db-shops:
     image: postgres
+    container_name: db-shops
     volumes: 
     - db-data-shops:/var/lib/postgresql/data
     - ./shops/schema/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -64,6 +70,7 @@ services:
   rabbit:
     hostname: 'rabbit'
     image: rabbitmq:3.6-management-alpine
+    container_name: rabbit
     #healthcheck:
       #test: ["CMD", "curl", "-f", "http://localhost:5672"]
       #interval: 30s
@@ -82,6 +89,7 @@ services:
 
   fabric:
     build: ./fabric
+    container_name: fabric
     environment: 
     - DB_PASSWORD=1
     networks:
@@ -102,6 +110,22 @@ services:
     networks:
     - l3
 
+  nginx:
+    image: nginx
+    container_name: nginx
+    volumes:
+    - ./reverse_proxy.conf:/etc/nginx/conf.d/default.conf
+    ports:
+    - 8081:8081
+    networks: 
+    - proxy
+    depends_on: 
+    - shops
+    - purchases
+    links: 
+    - shops
+    - purchases
+
 networks: 
   l1:
     driver: bridge
@@ -112,6 +136,8 @@ networks:
   n1:
     driver: bridge
   rabbitmq:
+    driver: bridge
+  proxy:
     driver: bridge
 
 volumes:
