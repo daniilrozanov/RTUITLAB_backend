@@ -5,13 +5,23 @@ import (
 	"net/http"
 )
 
-type SingInData struct {
+type SignInData struct {
 	Username string `json:"name"`
 	Password string `json:"password"`
 }
 
+// @Summary SignIn
+// @Tags auth
+// @Description get auth token
+// @ID sign-in
+// @Accept json
+// @Produce json
+// @Param input body SignInData true "Sign In Data"
+// @Success 200 {string} string "token"
+// @Failure default {object} Error
+// @Router /signin [post]
 func (h *Handler) SignIn(c *gin.Context){
-	var input SingInData
+	var input SignInData
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -31,5 +41,4 @@ func (h *Handler) SignIn(c *gin.Context){
 		"token": token,
 	})
 }
-
 

@@ -24,7 +24,7 @@ func NewReceiptsService(repo *repository.Repository, rabbitStruct *RabbitStruct,
 }
 
 func (r *ReceiptsService) AddToCart(userId int, cartItem *pkg.CartItemJSON) error {
-	if cartItem.Quantity == 0 {
+	if cartItem.Quantity < 1 {
 		cartItem.Quantity = 1
 	}
 	return r.repo.AddToCart(userId, cartItem)

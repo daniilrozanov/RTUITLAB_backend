@@ -5,6 +5,16 @@ import (
 	"net/http"
 )
 
+// @Summary GetReceipts
+// @Tags logged
+// @Security ApiKeyAuth
+// @Description get receipts
+// @ID get-receipts
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string][]templates.ReceiptJSON "response"
+// @Failure default {object} Error
+// @Router /cheques [get]
 func (h *Handler) GetReceipts(c *gin.Context) {
 	userId, err := h.getUserId(c)
 	if err != nil {

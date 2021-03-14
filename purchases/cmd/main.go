@@ -5,12 +5,24 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	_ "purchases/docs"
 	templates "purchases/pkg"
 	"purchases/pkg/buisness"
 	"purchases/pkg/handlers"
 	"purchases/pkg/repository"
 	"time"
 )
+
+// @title Purchases Service API
+// @version 1.0
+// @description Net API for Purchases Service
+
+// @host localhost:8081/purchases
+// @BasePath /
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 
 func main() {
 	time.Sleep(10 * time.Second)
@@ -45,7 +57,6 @@ func main() {
 	serv := new(templates.Server)
 
 	go buis.StartConsume()
-	log.Println("zzz")
 	if err := serv.Start(viper.GetString("port"), handl.InitRouting()); err != nil {
 		log.Fatalf("Error occured while server tried to start: %s", err.Error())
 	}

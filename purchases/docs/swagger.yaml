@@ -1,0 +1,188 @@
+basePath: /
+definitions:
+  handlers.ConfirmData:
+    properties:
+      name:
+        items:
+          type: integer
+        type: array
+      password:
+        items:
+          type: integer
+        type: array
+    type: object
+  handlers.Error:
+    properties:
+      message:
+        type: string
+    type: object
+  handlers.SignInData:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  templates.ProductJSON:
+    properties:
+      category:
+        type: string
+      cost:
+        type: integer
+      entire_cost:
+        type: integer
+      id:
+        type: integer
+      quantity:
+        type: integer
+      title:
+        type: string
+    type: object
+  templates.ReceiptJSON:
+    properties:
+      createdTime:
+        type: string
+      pay_option:
+        type: string
+      products:
+        items:
+          $ref: '#/definitions/templates.ProductJSON'
+        type: array
+      shop:
+        $ref: '#/definitions/templates.Shop'
+      summary_cost:
+        type: integer
+    type: object
+  templates.Shop:
+    properties:
+      address:
+        type: string
+      id:
+        type: integer
+      number:
+        type: string
+      title:
+        type: string
+    type: object
+host: localhost:8081/purchases
+info:
+  contact: {}
+  description: Net API for Purchases Service
+  title: Purchases Service API
+  version: "1.0"
+paths:
+  /cheques:
+    get:
+      consumes:
+      - application/json
+      description: get receipts
+      operationId: get-receipts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: response
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/templates.ReceiptJSON'
+              type: array
+            type: object
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handlers.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: GetReceipts
+      tags:
+      - logged
+  /confirm:
+    post:
+      consumes:
+      - application/json
+      description: send encrypted user id if exists
+      operationId: confirm
+      parameters:
+      - description: Confirm Data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ConfirmData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handlers.Error'
+      summary: ConfirmUser
+      tags:
+      - export auth
+  /signin:
+    post:
+      consumes:
+      - application/json
+      description: get auth token
+      operationId: sign-in
+      parameters:
+      - description: Sign In Data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SignInData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handlers.Error'
+      summary: SignIn
+      tags:
+      - auth
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: register in purchases service
+      operationId: sign-up
+      parameters:
+      - description: Sign In Data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.SignInData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handlers.Error'
+      summary: SignUp
+      tags:
+      - auth
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

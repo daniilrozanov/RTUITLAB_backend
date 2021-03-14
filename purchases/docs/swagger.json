@@ -1,0 +1,288 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Net API for Purchases Service",
+        "title": "Purchases Service API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8081/purchases",
+    "basePath": "/",
+    "paths": {
+        "/cheques": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "get receipts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "logged"
+                ],
+                "summary": "GetReceipts",
+                "operationId": "get-receipts",
+                "responses": {
+                    "200": {
+                        "description": "response",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/definitions/templates.ReceiptJSON"
+                                }
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/confirm": {
+            "post": {
+                "description": "send encrypted user id if exists",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "export auth"
+                ],
+                "summary": "ConfirmUser",
+                "operationId": "confirm",
+                "parameters": [
+                    {
+                        "description": "Confirm Data",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ConfirmData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "token",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/signin": {
+            "post": {
+                "description": "get auth token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "SignIn",
+                "operationId": "sign-in",
+                "parameters": [
+                    {
+                        "description": "Sign In Data",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SignInData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/signup": {
+            "post": {
+                "description": "register in purchases service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "SignUp",
+                "operationId": "sign-up",
+                "parameters": [
+                    {
+                        "description": "Sign In Data",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.SignInData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handlers.ConfirmData": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "password": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "handlers.Error": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.SignInData": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "templates.ProductJSON": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "cost": {
+                    "type": "integer"
+                },
+                "entire_cost": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "templates.ReceiptJSON": {
+            "type": "object",
+            "properties": {
+                "createdTime": {
+                    "type": "string"
+                },
+                "pay_option": {
+                    "type": "string"
+                },
+                "products": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/templates.ProductJSON"
+                    }
+                },
+                "shop": {
+                    "$ref": "#/definitions/templates.Shop"
+                },
+                "summary_cost": {
+                    "type": "integer"
+                }
+            }
+        },
+        "templates.Shop": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

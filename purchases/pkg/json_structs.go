@@ -20,7 +20,6 @@ type CartJSON struct {
 	Shop        Shop          `json:"shop"`
 	Products    []ProductJSON `json:"products"`
 	SummaryCost int           `json:"summary_cost"`
-	Index       int           `json:"index"`
 }
 
 type CartItemsOnDeleteJSON struct {

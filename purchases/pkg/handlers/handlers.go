@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"purchases/pkg/buisness"
 )
 
@@ -15,6 +17,7 @@ func InitHandlersLayer(bl *buisness.Buisness) *Handler {
 func (h *Handler) InitRouting() *gin.Engine {
 	router := gin.New()
 
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	auth := router.Group("")
 	{
 		auth.POST("/signin", h.SingIn)
@@ -23,6 +26,7 @@ func (h *Handler) InitRouting() *gin.Engine {
 	}
 	api := router.Group("", h.identifyUser)
 	{
+		api.GET("/cheques", h.GetReceipts)
 		products := api.Group("/products")
 		{
 			products.GET("/", h.GetItems)
@@ -31,13 +35,6 @@ func (h *Handler) InitRouting() *gin.Engine {
 			products.PUT("/:id", h.UpdateItem)
 			products.DELETE("/:id", h.DeleteItem)
 		}
-		receipts := api.Group("/receipts")
-		{
-			//receipts.PUT("/receipts/:id")
-			receipts.GET("/", h.GetReceipts)
-		}
 	}
-
-
 	return router
 }

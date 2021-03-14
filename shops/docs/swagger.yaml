@@ -1,0 +1,364 @@
+basePath: /
+definitions:
+  handler.AddToCartInput:
+    properties:
+      category:
+        type: string
+      product_id:
+        type: integer
+      quantity:
+        type: integer
+      shop_id:
+        type: integer
+    type: object
+  handler.Error:
+    properties:
+      message:
+        type: string
+    type: object
+  handler.Recstruct:
+    properties:
+      payoption:
+        type: integer
+      shop_id:
+        type: integer
+    type: object
+  handler.SignInData:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  handler.getAllProductsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/pkg.Product'
+        type: array
+    type: object
+  handler.getAllShopsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/pkg.Shop'
+        type: array
+    type: object
+  pkg.CartItemsOnDeleteJSON:
+    properties:
+      product_id:
+        type: integer
+      quantity:
+        type: integer
+      shop_id:
+        type: integer
+    required:
+    - product_id
+    - shop_id
+    type: object
+  pkg.CartJSON:
+    properties:
+      products:
+        items:
+          $ref: '#/definitions/pkg.ProductJSON'
+        type: array
+      shop:
+        $ref: '#/definitions/pkg.Shop'
+      summary_cost:
+        type: integer
+    type: object
+  pkg.Product:
+    properties:
+      category:
+        type: string
+      code:
+        type: integer
+      cost:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      map:
+        items:
+          $ref: '#/definitions/pkg.ShopQuantityJSON'
+        type: array
+      title:
+        type: string
+    required:
+    - category
+    - code
+    - cost
+    - description
+    - title
+    type: object
+  pkg.ProductJSON:
+    properties:
+      category:
+        type: string
+      cost:
+        type: integer
+      entire_cost:
+        type: integer
+      id:
+        type: integer
+      quantity:
+        type: integer
+      title:
+        type: string
+    type: object
+  pkg.ReceiptJSON:
+    properties:
+      createdTime:
+        type: string
+      pay_option:
+        type: string
+      products:
+        items:
+          $ref: '#/definitions/pkg.ProductJSON'
+        type: array
+      shop:
+        $ref: '#/definitions/pkg.Shop'
+      summary_cost:
+        type: integer
+    type: object
+  pkg.Shop:
+    properties:
+      address:
+        type: string
+      id:
+        type: integer
+      number:
+        type: string
+      title:
+        type: string
+    type: object
+  pkg.ShopQuantityJSON:
+    properties:
+      quantity:
+        type: integer
+      shop_id:
+        type: integer
+    type: object
+host: localhost:8081/shops
+info:
+  contact: {}
+  description: Net API for Shops Service
+  title: Shops Service API
+  version: "1.0"
+paths:
+  /carts:
+    delete:
+      consumes:
+      - application/json
+      description: delete from cart
+      operationId: delete-carts
+      parameters:
+      - description: Cart Items On Delete JSON
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/pkg.CartItemsOnDeleteJSON'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: response
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: DeleteFromCart
+      tags:
+      - logged
+    get:
+      consumes:
+      - application/json
+      description: get carts
+      operationId: get-carts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: response
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/pkg.CartJSON'
+              type: array
+            type: object
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: GetCarts
+      tags:
+      - logged
+    post:
+      consumes:
+      - application/json
+      description: create receipt
+      operationId: create-receipt
+      parameters:
+      - description: create receipt data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handler.Recstruct'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: response
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: CreateReceipt
+      tags:
+      - logged
+  /products:
+    get:
+      description: get products list
+      operationId: get-products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.getAllProductsResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.Error'
+      summary: Get Products
+    post:
+      consumes:
+      - application/json
+      description: add product to cart
+      operationId: add-to-cart
+      parameters:
+      - description: Cart Item JSON
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handler.AddToCartInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: response
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: AddToCart
+      tags:
+      - logged
+  /receipts:
+    get:
+      consumes:
+      - application/json
+      description: get receipts
+      operationId: get-receipts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: response
+          schema:
+            additionalProperties:
+              items:
+                $ref: '#/definitions/pkg.ReceiptJSON'
+              type: array
+            type: object
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: GetReceipts
+      tags:
+      - logged
+  /shops:
+    get:
+      description: get shops list
+      operationId: get-shops
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.getAllShopsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Error'
+        "500":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.Error'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.Error'
+      summary: Get Shops
+  /signin:
+    post:
+      consumes:
+      - application/json
+      description: get auth token
+      operationId: sign-in
+      parameters:
+      - description: Sign In Data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handler.SignInData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: token
+          schema:
+            type: string
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/handler.Error'
+      summary: SignIn
+      tags:
+      - auth
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

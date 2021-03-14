@@ -68,7 +68,7 @@ func (r *ReceiptsService) getReceiptsByIds(recIds *[]int) (*[]pkg.ReceiptJSON, e
 	if err := r.db.Select(&times, query, args...); err != nil {
 		return nil, err
 	}
-	//log.Println("times : ", times)
+	log.Println("times : ", times)
 	query = fmt.Sprintf("SELECT option FROM %s po JOIN %s rt ON rt.payopt_id=po.id WHERE rt.id IN (?)", payOptionsTable, receiptsTable)
 	query, args, err = sqlx.In(query, *recIds)
 	query = r.db.Rebind(query)
@@ -78,7 +78,7 @@ func (r *ReceiptsService) getReceiptsByIds(recIds *[]int) (*[]pkg.ReceiptJSON, e
 	if err := r.db.Select(&payOpts, query, args...); err != nil {
 		return nil, err
 	}
-	//log.Println("payOpts : ", payOpts)
+	log.Println("payOpts : ", payOpts)
 	query = fmt.Sprintf("SELECT cart_id FROM %s WHERE id IN (?)", receiptsTable)
 	query, args, err = sqlx.In(query, *recIds)
 	query = r.db.Rebind(query)
@@ -88,20 +88,23 @@ func (r *ReceiptsService) getReceiptsByIds(recIds *[]int) (*[]pkg.ReceiptJSON, e
 	if err := r.db.Select(&cartIds, query, args...); err != nil {
 		return nil, err
 	}
-	//log.Println("times : ", times)
+	log.Println("times : ", times)
 	carts, err = r.getCartsList(&cartIds)
-	//log.Println("carts : ", *carts)
+	if err != nil {
+		return nil, errors.New("error while getting carts: " + err.Error())
+	}
+	log.Println("carts : ", carts)
 	if err != nil {
 		return nil, err
 	}
-	log.Println(len(*carts), " ", len(cartIds), " ", len(times), " ", len(payOpts))
+	//log.Println(len(*carts), " ", len(cartIds), " ", len(times), " ", len(payOpts))
 	for i, x := range *carts {
 		recs = append(recs, pkg.ReceiptJSON{
 			CartJSON: x,
 			PayOption: payOpts[i],
 			CreatedTime: times[i],
 		})
-		//log.Println("N: ", i, "payopt: ", payOpts[i], "ceratedate: ", times[i], "cartjson: ", x)
+		log.Println("N: ", i, "payopt: ", payOpts[i], "ceratedate: ", times[i], "cartjson: ", x)
 	}
 	return &recs, nil
 }

@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS shops_products
     id         SERIAL PRIMARY KEY,
     shop_id    INTEGER NOT NULL,
     product_id INTEGER NOT NULL,
-    quantity   INTEGER NOT NULL,
+    quantity   INTEGER NOT NULL CHECK (quantity > 0),
     UNIQUE (shop_id, product_id)
 );
 
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS cart_item
 (
     id         SERIAL PRIMARY KEY,
     product_id INTEGER,
-    quantity   INTEGER NOT NULL,
+    quantity   INTEGER NOT NULL CHECK (quantity > 0),
     cart_id    INTEGER,
     UNIQUE (product_id, cart_id)
 );

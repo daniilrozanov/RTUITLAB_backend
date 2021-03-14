@@ -15,7 +15,7 @@ func (r *ReceiptsService) CreateReceipt(shopId, userId, payOptionId int) (int, e
 	if err := r.checkCart(&ucId, &number, shopId, userId); err != nil {
 		return 0, err
 	}
-	if err := r.checkQuantity(ucId); err != nil {
+	if err := r.checkQuantity(ucId, shopId); err != nil {
 		return 0, err
 	}
 	tx, err := r.db.Beginx()
@@ -72,16 +72,20 @@ func (r *ReceiptsService) checkCart(ucId, number *int, shopId, userId int) error
 	}
 	return nil
 }
-func (r *ReceiptsService) checkQuantity(ucId int) error {
+func (r *ReceiptsService) checkQuantity(ucId, shopId int) error {
 	var titles []string
+	//var a, b int
 
-	query := fmt.Sprintf("SELECT title FROM %s WHERE id IN (SELECT ci.product_id FROM %s ci JOIN %s sp ON ci.product_id=sp.product_id WHERE ci.quantity > sp.quantity AND cart_id=$1)",
+	query := fmt.Sprintf("SELECT title FROM %s WHERE id IN (SELECT ci.product_id FROM %s ci JOIN %s sp ON ci.product_id=sp.product_id WHERE ci.quantity > sp.quantity AND cart_id=$1 AND sp.shop_id=$2)",
 		productsTable, cartItemTable, shopsProductsTable)
-	err := r.db.Select(&titles, query, ucId)
+	err := r.db.Select(&titles, query, ucId, shopId)
 	if err != nil {
 		return err
 	}
-	if len(titles) != 0 {
+	//query = fmt.Sprintf("SELECT ci.quantity, sp.quantity FROM %s ci JOIN %s sp ON ci.product_id=sp.product_id WHERE ci.quantity > sp.quantity AND cart_id=$1 AND sp.shop_id=$2", cartItemTable, shopsProductsTable)
+	//r.db.QueryRow(query, ucId, shopId).Scan(&a, &b)
+	//log.Println("ci.quantity, sp.quantity: ", a, " ", b)
+	if len(titles) > 0 {
 		return errors.New("quantities in " + strings.Join(titles, ", ") + " is bigger than available")
 	}
 	return nil

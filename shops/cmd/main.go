@@ -5,12 +5,24 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	_ "shops/docs"
 	"shops/pkg"
 	"shops/pkg/handler"
 	"shops/pkg/repository"
 	"shops/pkg/service"
 	"time"
 )
+
+// @title Shops Service API
+// @version 1.0
+// @description Net API for Shops Service
+
+// @host localhost:8081/shops
+// @BasePath /
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 
 func main(){
 	time.Sleep(11 * time.Second)
