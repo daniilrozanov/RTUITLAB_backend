@@ -27,14 +27,14 @@ func (h *Handler) InitRouting() *gin.Engine {
 	api := router.Group("", h.identifyUser)
 	{
 		api.GET("/cheques", h.GetReceipts)
-		products := api.Group("/products")
+		/*products := api.Group("/products")
 		{
 			products.GET("/", h.GetItems)
 			products.POST("/", h.CreateItem)
 			products.GET("/:id", h.GetItem)
 			products.PUT("/:id", h.UpdateItem)
 			products.DELETE("/:id", h.DeleteItem)
-		}
+		}*/
 	}
 	return router
 }
