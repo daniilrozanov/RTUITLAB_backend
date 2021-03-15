@@ -36,10 +36,6 @@
         {
           "shop_id": 1,
           "quantity": 20
-        },
-        {
-          "shop_id": 31,
-          "quantity": 1000
         }
       ],
       "power": 40
