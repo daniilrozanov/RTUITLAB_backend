@@ -23,6 +23,10 @@ Important path: before doing any changes, you need to correct ```docker-compose.
 
 # API documentation
 
+## Swagger
+
+To test all available functions, you can use swagger in purchases and shops service. To use it, go to ```http://localhost:8081/shops/swagger/index.html#/``` or ```http://localhost:8081/purchases/swagger/index.html#/``` while services is running.
+
 ## Shops service
 
 ## Auth request group
