@@ -25,7 +25,7 @@ import (
 // @name Authorization
 
 func main(){
-	time.Sleep(11 * time.Second)
+	time.Sleep(20 * time.Second)
 
 	if err := initConfigs(); err != nil {
 		log.Fatalf("Error occured while reading of config: %s", err)
