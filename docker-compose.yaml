@@ -2,7 +2,8 @@ version: '3'
 
 services:
   purchases:
-    build: ./purchases
+    #build: ./purchases
+    image: ddzzan/purchases
     command: ./main
     container_name: purchases
     environment:
@@ -35,7 +36,8 @@ services:
     - l1
 
   shops:
-    build: ./shops
+    #build: ./shops
+    image: ddzzan/shops
     command: ./main
     container_name: shops
     environment:
@@ -88,7 +90,8 @@ services:
       - RABBITMQ_DEFAULT_PASS=1
 
   fabric:
-    build: ./fabric
+    #build: ./fabric
+    image: ddzzan/fabric
     container_name: fabric
     environment: 
     - DB_PASSWORD=1
