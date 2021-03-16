@@ -2,12 +2,12 @@
 
 # Introduction
 
-This is a 3 level project of purchases, shops and fabric services, created by Daniil Rozanov from IVBO-05-19 group. Each of service connected with own postgres database and one general RabbitMQ. Each service divided on 3 levels: handlers, middleware, reopsitory, and communicate with each other by interfaces.
+This is a 3 level project of purchases, shops and fabric services, created by Daniil Rozanov from IVBO-05-19 group. Each of service connected with own postgres database and one general RabbitMQ. Each service divided on 3 levels: handlers, middleware, repository, and communicate with each other by interfaces.
 
 Actually services do this stuff:
 - fabric produces products and sending it to shops service.
 - shops provides to user possibility to view shops and products list and buying it, creating receipt. Receipt sends to purchases service.
-- purchases can register user and give them list of their receipts.
+- purchases can register users and give them list of their receipts.
 
 
 # Install and Run services
@@ -18,6 +18,8 @@ To install services, clone this repository in any folder, go into created folder
   docker-compose up
 ```
 Servises run by pre-compiled binary file, so if you want to do any changes and up it, you need to execute ```CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd``` in each directory of ```/shops```, ```/purchases``` and ```/factory```. Also you can use Makefile to rebuild binary main files by ```make rebuild_all_docker``` command, executed from project root directory.
+
+Important path: before doing any changes, you need to correct ```docker-compose.yaml``` file setting docker image source from ```image: ddzzan/*``` to ```build: ./*``` or your own docker hub image. Also if you want to use command ```make``` to repush your custom image, you need to set your own docker hub destination address in each project's Makefile. 
 
 # API documentation
 
