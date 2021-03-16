@@ -316,3 +316,61 @@ Response example
   ]
 }
 ```
+---
+
+## Fabric service
+
+Only you should to do is set fabric is configurate ```products.json``` file.
+
+#### Example
+
+Example of ```products.json``` file. ```period``` fiels is time is seconds that sets period of sending products to shops service. ```power``` field sets quantity of product that will be produced by one period. Map of ```quantity``` and ```shop_id``` fields sets how much items fabric needs to sent to every shop.
+
+```json
+{
+  "products": [
+    {
+      "product": {
+        "title": "Уголок для плитки",
+        "description": "Уголок для плитки 9 мм МАК №25 горох, наружный",
+        "cost": 300,
+        "category": "Стеновые покрытия",
+        "code": 972
+      },
+      "map": [
+        {
+          "shop_id": 2,
+          "quantity": 100
+        },
+        {
+          "shop_id": 1,
+          "quantity": 50
+        }
+      ],
+      "power": 100
+    },
+    {
+      "product": {
+        "title": "Профиль перегородочный стоечный",
+        "description": "Профиль перегородочный стоечный CW 100х50 (PR ПС 100) N",
+        "cost": 300,
+        "category": "Профиль укороченный",
+        "code": 933
+      },
+      "map": [
+        {
+          "shop_id": 2,
+          "quantity": 30
+        },
+        {
+          "shop_id": 1,
+          "quantity": 20
+        }
+      ],
+      "power": 40
+    }
+  ],
+  "period": 7
+}
+
+```
