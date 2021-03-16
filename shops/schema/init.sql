@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS shops_products
     id         SERIAL PRIMARY KEY,
     shop_id    INTEGER NOT NULL,
     product_id INTEGER NOT NULL,
-    quantity   INTEGER NOT NULL CHECK (quantity > 0),
+    quantity   INTEGER NOT NULL CHECK (quantity >= 0),
     UNIQUE (shop_id, product_id)
 );
 
@@ -71,7 +71,8 @@ CREAte TABLE IF NOT EXISTS products_custom_categories
     cart_id    INTEGER,
     product_id INTEGER,
     category   VARCHAR(128),
-    UNIQUE (cart_id, product_id)
+    UNIQUE (cart_id, product_id),
+    FOREIGN KEY (cart_id) REFERENCES carts (id) ON DELETE CASCADE
 );
 
 INSERT INTO shops (id, title, address, phone)
