@@ -71,8 +71,7 @@ CREAte TABLE IF NOT EXISTS products_custom_categories
     cart_id    INTEGER,
     product_id INTEGER,
     category   VARCHAR(128),
-    UNIQUE (cart_id, product_id),
-    FOREIGN KEY (cart_id) REFERENCES carts (id) ON DELETE CASCADE
+    UNIQUE (cart_id, product_id)
 );
 
 INSERT INTO shops (id, title, address, phone)
