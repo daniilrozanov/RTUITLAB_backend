@@ -79,7 +79,7 @@ VALUES (1, 'Тысяча мелочей', 'Самарская 134', '+7994815630
        (2, 'Крепёж', 'Грибоедова 21', '+78849137751');
 
 INSERT INTO  pay_options (option)
-VALUES ('VISA'), ('MasterCard'), ('МИР'), ('Google Pay'), ('Apple Pay'), ('Samsung Pay')
+VALUES ('VISA'), ('MasterCard'), ('МИР'), ('Google Pay'), ('Apple Pay'), ('Samsung Pay');
 
 
 CREATE FUNCTION products_stamp() RETURNS trigger AS $products_stamp$
