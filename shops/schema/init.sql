@@ -80,3 +80,23 @@ VALUES (1, 'Тысяча мелочей', 'Самарская 134', '+7994815630
 
 INSERT INTO  pay_options (option)
 VALUES ('VISA'), ('MasterCard'), ('МИР'), ('Google Pay'), ('Apple Pay'), ('Samsung Pay')
+
+
+CREATE FUNCTION products_stamp() RETURNS trigger AS $products_stamp$
+    BEGIN
+        IF NEW.title IS NULL THEN
+            RAISE EXCEPTION 'title cannot be null';
+        END IF;
+        IF NEW.description IS NULL THEN
+            RAISE EXCEPTION '% cannot have null salary', NEW.description;
+        END IF;
+        
+        IF NEW.cost < 1 THEN
+            RAISE EXCEPTION '% cannot have a negative cost', NEW.cost;
+        END IF;
+        RETURN NEW;
+    END;
+$products_stamp$ LANGUAGE plpgsql;
+
+CREATE TRIGGER products_stamp BEFORE INSERT OR UPDATE ON products
+    FOR EACH ROW EXECUTE FUNCTION products_stamp();
